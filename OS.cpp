@@ -131,6 +131,11 @@ static bool g_menuOpen = false;
 static float g_menuAnim = 0.0f;
 static bool g_drawerOpen = false;
 static bool g_bootToastDone = false;   // 开机 3 秒后的那条提醒只弹一次
+static std::wstring g_clip;            // 右键"复制/粘贴"用的内部剪贴板
+static int g_volume = 60;              // 音量 0-100
+static bool g_volPanel = false;        // 音量面板是否打开
+static bool g_volDrag = false;         // 是否正在拖音量
+static int g_volIconX = 0, g_volIconY = 0, g_volIconW = 26, g_volIconH = 30;
 static float g_drawerAnim = 0.0f;
 
 static bool g_settingsOpen = false;
@@ -391,7 +396,7 @@ static void CtxMainRect(CtxLayout& L, int px, int py)
 {
     L.w = 240;
     L.itemH = 34;
-    L.count = 8;
+    L.count = 12;
     L.x = ClampI(px, 4, g_W - L.w - 4);
     L.y = ClampI(py, 4, TaskbarY() - L.count * L.itemH - 12);
 }
@@ -966,6 +971,7 @@ static void RenderTaskbar(Graphics& g)
     rx -= 26;
     // 音量
     {
+        g_volIconX = rx - 20; g_volIconY = ty + 10;
         Pen vp(colSub, 1.4f);
         g.DrawRectangle(&vp, (REAL)(rx - 16), (REAL)(ty + 16), 6.0f, 8.0f);
         g.DrawLine(&vp, (REAL)(rx - 10), (REAL)(ty + 16), (REAL)(rx - 4), (REAL)(ty + 11));
@@ -1835,9 +1841,10 @@ static void RenderCtxMenu(Graphics& g)
     Pen bd(Color(120, 255, 255, 255), 1.0f);
     RRect(g, (REAL)L.x, (REAL)L.y, (REAL)L.w, (REAL)h, 8.0f, &lb, &bd);
 
-    static const wchar_t* items[8] = {
+    static const wchar_t* items[12] = {
         L"查看", L"排序方式", L"刷新", L"新建", L"打开回收站",
-        L"更换壁纸", L"打开系统设置", L"关于鲸鱼OS"
+        L"更换壁纸", L"打开系统设置", L"关于鲸鱼OS",
+        L"复制", L"粘贴", L"打开浏览器", L"显示时间"
     };
     int i;
     for (i = 0; i < L.count; i++)
@@ -2044,6 +2051,47 @@ static void RenderLock(Graphics& g, ULONGLONG tick)
     TextC(g, 0, false, L"鲸鱼OS", g_W / 2, g_H - 60, Color(140, 190, 204, 230));
 }
 
+static void VolPanelRect(int& x, int& y, int& w, int& h)
+{
+    w = 240; h = 96;
+    x = g_W - w - 12;
+    y = TaskbarY() - h - 10;
+    if (y < 8) y = 8;
+}
+
+static void RenderVolumePanel(Graphics& g)
+{
+    if (!g_volPanel) return;
+    int x, y, w, h;
+    VolPanelRect(x, y, w, h);
+
+    SolidBrush sh(Color(90, 0, 0, 0));
+    RRect(g, (REAL)(x + 4), (REAL)(y + 6), (REAL)w, (REAL)h, 10.0f, &sh, 0);
+    SolidBrush bg(Color(246, 24, 30, 44));
+    Pen bd(Color(120, 255, 255, 255), 1.0f);
+    RRect(g, (REAL)x, (REAL)y, (REAL)w, (REAL)h, 10.0f, &bg, &bd);
+
+    TextL(g, 1, true, L"音量", x + 16, y + 12, Color(255, 238, 244, 252));
+    wchar_t v[16];
+    std::swprintf(v, 16, L"%d%%", g_volume);
+    TextR(g, 0, false, v, x + w - 16, y + 12, Color(210, 200, 216, 240));
+
+    int tx = x + 16;
+    int ty2 = y + 52;
+    int tw = w - 32;
+    SolidBrush track(Color(255, 48, 58, 78));
+    RRect(g, (REAL)tx, (REAL)ty2, (REAL)tw, 10.0f, 5.0f, &track, 0);
+    int fw = (int)((float)tw * (float)g_volume / 100.0f + 0.5f);
+    if (fw > 3)
+    {
+        SolidBrush fill(Color(255, 108, 168, 240));
+        RRect(g, (REAL)tx, (REAL)ty2, (REAL)fw, 10.0f, 5.0f, &fill, 0);
+    }
+    SolidBrush knob(Color(255, 250, 252, 255));
+    g.FillEllipse(&knob, (REAL)(tx + fw - 7), (REAL)(ty2 - 3), 16.0f, 16.0f);
+    TextL(g, 0, false, L"拖动滑块调节 · 点外面关闭", x + 16, y + 72, Color(150, 190, 206, 226));
+}
+
 static void RenderDesktopClock(Graphics& g)
 {
     SYSTEMTIME st;
@@ -2135,6 +2183,7 @@ static void RenderUI(Graphics& g, ULONGLONG tick)
     RenderWindows(g);
     RenderTaskbar(g);
     RenderIsland(g);
+    RenderVolumePanel(g);
     if (g_menuOpen || g_menuAnim > 0.01f) RenderStartMenu(g);
     if (g_state == ST_STEAM) RenderSteam(g);
     if (g_settingsOpen) RenderSettings(g);
@@ -2581,6 +2630,35 @@ static void DoCtxAction(int id)
     {
         ToastNow(L"鲸鱼OS v2 · 单文件假桌面");
     }
+    else if (id == 8)   // 复制
+    {
+        if (g_active >= 0 && g_active < (int)g_wins.size())
+        {
+            PosWin& w = g_wins[g_active];
+            g_clip = !w.text.empty() ? w.text : (!w.url.empty() ? w.url : w.title);
+            ToastNow(L"已复制：" + TruncChars(g_clip, 16));
+        }
+        else ToastNow(L"没有活动窗口可复制");
+    }
+    else if (id == 9)   // 粘贴
+    {
+        if (g_clip.empty()) ToastNow(L"剪贴板是空的");
+        else if (g_active >= 0 && g_active < (int)g_wins.size() &&
+                 (g_wins[g_active].kind == APP_NOTEPAD || g_wins[g_active].kind == APP_TEXTDOC))
+        {
+            g_wins[g_active].text += g_clip;
+            ToastNow(L"已粘贴");
+        }
+        else ToastNow(L"先把记事本或文本文档打开再粘贴");
+    }
+    else if (id == 10)  // 打开浏览器
+    {
+        OpenApp(APP_BAIDU);
+    }
+    else if (id == 11)  // 显示时间
+    {
+        SetToast(NowDateStr() + L"  " + NowTimeStr(), 3000);
+    }
     g_ctxOpen = CTX_NONE;
     g_ctxHover = -1;
 }
@@ -2693,6 +2771,30 @@ static void OnLButtonDown(int mx, int my)
             }
             return;
         }
+    }
+
+    // 音量面板：点图标开合，面板内点/拖调音量
+    if (g_volPanel)
+    {
+        int px, py, pw, ph;
+        VolPanelRect(px, py, pw, ph);
+        if (PtInRectI(mx, my, px, py, pw, ph))
+        {
+            int tx = px + 16, tw = pw - 32;
+            int v = (int)(100.0f * (float)(mx - tx) / (float)(tw > 1 ? tw : 1) + 0.5f);
+            if (v < 0) v = 0;
+            if (v > 100) v = 100;
+            g_volume = v;
+            g_volDrag = true;
+            return;
+        }
+        g_volPanel = false;   // 点外面关掉
+    }
+    if (PtInRectI(mx, my, g_volIconX, g_volIconY, g_volIconW, g_volIconH))
+    {
+        g_volPanel = !g_volPanel;
+        g_volDrag = false;
+        return;
     }
 
     // context menu has the highest priority
@@ -3033,6 +3135,18 @@ static void OnRButtonDown(int mx, int my)
 
 static void OnMouseMove(int mx, int my)
 {
+    if (g_volDrag && g_volPanel)
+    {
+        int px, py, pw, ph;
+        VolPanelRect(px, py, pw, ph);
+        int tx = px + 16, tw = pw - 32;
+        int v = (int)(100.0f * (float)(mx - tx) / (float)(tw > 1 ? tw : 1) + 0.5f);
+        if (v < 0) v = 0;
+        if (v > 100) v = 100;
+        g_volume = v;
+        g_mx = mx; g_my = my;
+        return;
+    }
     int dx = mx - g_lastX;
     int dy = my - g_lastY;
     g_lastX = mx;
@@ -3100,6 +3214,7 @@ static void OnMouseMove(int mx, int my)
 
 static void OnLButtonUp()
 {
+    g_volDrag = false;
     g_movingWin = -1;
     g_paintWin = -1;
     g_dragPanel = 0;
