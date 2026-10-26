@@ -916,6 +916,7 @@ static void RenderTaskbar(Graphics& g)
     }
 
     // 非固定窗口按钮
+    int i;
     int rc = RunBtnCount();
     for (i = 0; i < rc; i++)
     {
@@ -3307,7 +3308,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
         // F1：快捷键提示
         if (wParam == VK_F1)
         {
-            ToastNow(L"Win 开始菜单 · F11 换壁纸 · Esc 关浮层 · Ctrl+Alt+Q 退出", 5000);
+            SetToast(L"Win 开始菜单 · F11 换壁纸 · Esc 关浮层 · Ctrl+Alt+Q 退出", 5000);
             return 0;
         }
         return DefWindowProcW(hwnd, msg, wParam, lParam);
