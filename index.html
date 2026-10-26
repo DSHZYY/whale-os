@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b142c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>鲸鱼OS</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif;background:#000;color:#fff}
+#boot{position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99;transition:opacity .6s}
+#boot .logo{width:86px;height:86px;border-radius:22px;background:linear-gradient(135deg,#2b6cff,#22d3ee);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 10px 40px #0af6}
+#boot .name{margin-top:18px;font-size:22px;letter-spacing:4px;color:#e8f1ff}
+#boot .bar{margin-top:26px;width:180px;height:4px;border-radius:2px;background:#ffffff26;overflow:hidden}
+#boot .bar i{display:block;height:100%;width:0;background:#4aa3ff;animation:load 2.2s ease forwards}
+@keyframes load{to{width:100%}}
+#desk{position:fixed;inset:0;background:
+ radial-gradient(1200px 600px at 70% 10%,#1b4a7a55,transparent 60%),
+ radial-gradient(900px 500px at 20% 90%,#0a5f7a44,transparent 60%),
+ linear-gradient(180deg,#0b142c 0%,#123152 55%,#0a1b33 100%);
+ overflow:hidden}
+.icon{position:absolute;width:76px;text-align:center;font-size:12px;color:#e9f2ff;cursor:pointer;user-select:none}
+.icon .g{width:52px;height:52px;margin:0 auto 6px;border-radius:14px;background:linear-gradient(160deg,#ffffff2e,#ffffff12);border:1px solid #ffffff33;display:flex;align-items:center;justify-content:center;font-size:24px;backdrop-filter:blur(6px)}
+.clock{position:absolute;right:22px;top:18px;text-align:right;text-shadow:0 2px 12px #000a}
+.clock b{display:block;font-size:44px;font-weight:300;letter-spacing:1px}
+.clock span{font-size:13px;opacity:.85}
+#bar{position:absolute;left:0;right:0;bottom:0;height:48px;display:flex;align-items:center;gap:6px;padding:0 8px;
+ background:linear-gradient(180deg,#ffffff1f,#ffffff0d);backdrop-filter:blur(18px);border-top:1px solid #ffffff26}
+#start{width:40px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#ffffff14;cursor:pointer;font-size:18px}
+#start:active{background:#ffffff2b}
+.tbtn{height:36px;padding:0 12px;border-radius:8px;display:flex;align-items:center;gap:6px;font-size:12px;background:#ffffff12;cursor:pointer;white-space:nowrap;overflow:hidden;max-width:150px}
+.tbtn.on{background:#ffffff2b;box-shadow:inset 0 -2px 0 #4aa3ff}
+#tray{margin-left:auto;font-size:11px;text-align:right;line-height:1.25;opacity:.9;padding-right:4px}
+#menu{position:absolute;left:8px;bottom:56px;width:min(360px,80vw);max-height:60vh;overflow:auto;padding:14px;border-radius:14px;
+ background:#101827ee;backdrop-filter:blur(20px);border:1px solid #ffffff22;box-shadow:0 18px 60px #000a;display:none}
+#menu.open{display:block}
+#menu h4{margin:0 0 10px;font-size:13px;opacity:.7;font-weight:500}
+.mi{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;font-size:14px}
+.mi:hover,.mi:active{background:#ffffff1a}
+.win{position:absolute;min-width:240px;min-height:150px;border-radius:12px;overflow:hidden;background:#0e1729f2;border:1px solid #ffffff26;
+ box-shadow:0 24px 60px #000b;display:flex;flex-direction:column}
+.win .tb{height:38px;display:flex;align-items:center;padding:0 10px;gap:8px;background:#ffffff10;cursor:grab;font-size:13px}
+.win .tb b{font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.win .x{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.win .x:hover{background:#e81123}
+.win .bd{flex:1;padding:14px;font-size:14px;line-height:1.6;overflow:auto}
+.win textarea{width:100%;height:100%;background:transparent;border:0;color:#fff;font:inherit;resize:none;outline:none}
+#notify{position:absolute;left:10px;bottom:60px;width:210px;padding:12px;border-radius:14px;background:#0b1220ee;border:1px solid #ffffff26;
+ transform:translateY(140%);transition:transform .45s cubic-bezier(.2,.9,.2,1);font-size:13px;cursor:pointer}
+#notify.show{transform:translateY(0)}
+</style>
+</head>
+<body>
+<div id="boot"><div class="logo">🐋</div><div class="name">鲸鱼OS</div><div class="bar"><i></i></div></div>
+<div id="desk">
+  <div class="clock"><b id="ct">--:--</b><span id="cd"></span></div>
+  <div class="icon" style="left:18px;top:120px" onclick="openApp('note')"><div class="g">📝</div>记事本</div>
+  <div class="icon" style="left:18px;top:210px" onclick="openApp('trash')"><div class="g">🗑️</div>回收站</div>
+  <div class="icon" style="left:18px;top:300px" onclick="openApp('about')"><div class="g">ℹ️</div>关于</div>
+  <div id="menu"><h4>已固定</h4>
+    <div class="mi" onclick="openApp('note')">📝 记事本</div>
+    <div class="mi" onclick="openApp('trash')">🗑️ 回收站</div>
+    <div class="mi" onclick="openApp('about')">ℹ️ 关于鲸鱼OS</div>
+    <h4 style="margin-top:12px">系统</h4>
+    <div class="mi" onclick="wall()">🖼️ 换个壁纸</div>
+    <div class="mi" onclick="note('这是 AI 做的假系统，Ctrl+Alt+Q 那种退出方式在网页里用「关闭标签页」')">💬 试一下通知</div>
+  </div>
+  <div id="notify" onclick="this.classList.remove('show')"></div>
+  <div id="bar"><div id="start" onclick="menu()">⊞</div><div id="tabs"></div><div id="tray"><div id="bt">--:--</div><div id="bd">--/--</div></div></div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const wins={};
+function menu(){$('#menu').classList.toggle('open')}
+function note(t){const n=$('#notify');n.textContent=t;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),3500)}
+function clock(){const d=new Date(),p=n=>String(n).padStart(2,'0');
+  const t=p(d.getHours())+':'+p(d.getMinutes());
+  $('#ct').textContent=t;$('#bt').textContent=t;
+  $('#cd').textContent=`${d.getFullYear()} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日`;
+  $('#bd').textContent=`${d.getMonth()+1}/${d.getDate()}`}
+setInterval(clock,1000);clock();
+setTimeout(()=>{$('#boot').style.opacity=0;setTimeout(()=>$('#boot').remove(),700)},2300);
+const APPS={
+ note:{t:'记事本',w:340,h:280,body:'<textarea placeholder="随便打点字…"></textarea>'},
+ trash:{t:'回收站',w:320,h:220,body:'<div>🗑️ 这里空空如也<br><br><small style="opacity:.6">（演示用，不真的删除文件）</small></div>'},
+ about:{t:'关于鲸鱼OS',w:340,h:240,body:`<div><b>鲸鱼OS · 网页版</b><br><br>一个用网页写的假 Windows：任务栏、开始菜单、可拖动窗口、通知。<br><br>源码版（C++）：在 GitHub 上搜 whale-os</div>`}
+};
+let z=10;
+function openApp(k){menuClose();
+  if(wins[k]){wins[k].style.zIndex=++z;return}
+  const a=APPS[k],w=document.createElement('div');
+  w.className='win';w.style.width=a.w+'px';w.style.height=a.h+'px';
+  const maxX=innerWidth-a.w-16,maxY=innerHeight-a.h-60;
+  w.style.left=Math.max(10,Math.min(maxX,innerWidth/2-a.w/2))+'px';
+  w.style.top=Math.max(60,Math.min(maxY,innerHeight/2-a.h/2))+'px';
+  w.style.zIndex=++z;
+  w.innerHTML=`<div class="tb"><b>${a.t}</b><div class="x">✕</div></div><div class="bd">${a.body}</div>`;
+  w.querySelector('.x').onclick=()=>{w.remove();delete wins[k];tabs()};
+  $('#desk').appendChild(w);wins[k]=w;
+  // 拖动（鼠标 + 触摸）
+  const tb=w.querySelector('.tb');let sx,sy,ox,oy,drag=false;
+  const down=e=>{drag=true;const p=e.touches?e.touches[0]:e;sx=p.clientX;sy=p.clientY;ox=w.offsetLeft;oy=w.offsetTop;w.style.zIndex=++z};
+  const move=e=>{if(!drag)return;const p=e.touches?e.touches[0]:e;w.style.left=Math.max(0,Math.min(innerWidth-80,ox+p.clientX-sx))+'px';w.style.top=Math.max(0,Math.min(innerHeight-80,oy+p.clientY-sy))+'px';e.preventDefault()};
+  const up=()=>drag=false;
+  tb.addEventListener('mousedown',down);tb.addEventListener('touchstart',down,{passive:true});
+  addEventListener('mousemove',move);addEventListener('touchmove',move,{passive:false});
+  addEventListener('mouseup',up);addEventListener('touchend',up);
+  w.addEventListener('mousedown',()=>w.style.zIndex=++z);
+  tabs();
+}
+function menuClose(){$('#menu').classList.remove('open')}
+function tabs(){const t=$('#tabs');t.innerHTML='';
+  Object.keys(wins).forEach(k=>{const b=document.createElement('div');b.className='tbtn on';b.textContent=APPS[k].t;
+    b.onclick=()=>{wins[k].style.zIndex=++z};t.appendChild(b)})}
+function wall(){const d=$('#desk');
+  const list=['linear-gradient(180deg,#0b142c 0%,#123152 55%,#0a1b33 100%)',
+              'radial-gradient(900px 600px at 30% 20%,#3a1d6e55,transparent),linear-gradient(160deg,#141026,#2b1b4d 60%,#0d0b1a)',
+              'radial-gradient(900px 600px at 70% 30%,#0f5f5555,transparent),linear-gradient(160deg,#07211f,#0b3b36 60%,#04120f)'];
+  d._i=((d._i||0)+1)%list.length;
+  d.style.background=list[d._i];menuClose();note('壁纸已更换')}
+document.addEventListener('click',e=>{if(!e.target.closest('#menu,#start'))menuClose()});
+</script>
+</body></html>
