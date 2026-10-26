@@ -1,17 +1,17 @@
-name: build
+名称：内部版本
 
-on:
-  push:
-  workflow_dispatch:
+在……之上：
+推：
+工作流程分派(_D)：
 
-jobs:
-  exe:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ilammy/msvc-dev-cmd@v1
-      - name: compile
-        run: cl /nologo /EHsc /O2 /utf-8 /DUNICODE /D_UNICODE OS.cpp /link user32.lib gdiplus.lib gdi32.lib shell32.lib shlwapi.lib
+作业：
+exe：
+运行时间：Windows-最后的
+步骤：
+-使用：操作/结帐@v4
+-用途：ilammy/MSVC-dev-CMD@v1
+-名称：编译
+运行：CL/nologo/EHsc/O2/UTF-8/DUNICODE/D_UNICODE OS.cpp/link user32.lib gdiplus。lib gdi32.lib shell32.lib什尔瓦皮.lib
       - uses: actions/upload-artifact@v4
         with:
           name: 鲸鱼OS-exe
@@ -29,7 +29,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
       - name: 生成安卓工程
         run: |
-          mkdir -p android/app/src/main/java/os/whale android/app/src/main/assets
+          mkdir -p android/app/src/主要的/java/os/whale android/app/src/主要的/assets
           cp index.html android/app/src/main/assets/index.html
           cat > android/settings.gradle <<'EOF'
           pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
