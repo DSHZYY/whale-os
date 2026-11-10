@@ -90,6 +90,9 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
   font-size:12.5px;color:#dfe9f7;transition:.25s;pointer-events:none;max-width:80%;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #dock{position:absolute;left:0;right:0;bottom:0;height:0}
+#dots{position:absolute;left:0;right:0;bottom:16px;text-align:center;z-index:800;pointer-events:none}
+#dots i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ffffff45;margin:0 4px}
+#dots i.on{background:#ffffffd0;width:18px;border-radius:4px}
 /* 从灵动岛掉下来的消息 */
 #msg{position:absolute;left:50%;top:8px;transform:translateX(-50%) translateY(-130%);
   z-index:940;width:86%;max-width:360px;padding:12px 14px;border-radius:20px;
@@ -109,6 +112,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
   <div class="icon" style="left:14px;top:310px" onclick="openApp('about')"><div class="g">ℹ️</div>关于</div>
   <div class="icon" style="left:14px;top:390px" onclick="openApp('apps')"><div class="g">🗂️</div>应用</div>
 </div>
+<div id="dots"></div>
 <div id="wins"></div>
 
 <div id="island" onclick="islandTap()">
@@ -144,6 +148,61 @@ window.onerror=function(m,src,line,col,err){
 var innerW=function(){return window.innerWidth||document.documentElement.clientWidth};
 var innerH=function(){return window.innerHeight||document.documentElement.clientHeight};
 
+/* ── 分页桌面 ── */
+var ICONS=[];      // {el, app, name, ic}
+var PAGE=0;
+function collectIcons(){
+  ICONS=[];
+  var els=document.querySelectorAll('#desk .icon');
+  for(var i=0;i<els.length;i++){
+    var e=els[i];
+    var m=(e.getAttribute('onclick')||'').match(/'([^']+)'/);
+    ICONS.push({el:e, app:m?m[1]:'note', name:e.textContent.trim(),
+                ic:(e.querySelector('.g')||{}).textContent||'📦'});
+  }
+}
+function gridSize(){
+  var rows=Math.max(3,Math.floor((innerH()-150)/84));
+  var cols=Math.max(2,Math.floor((innerW()-90)/80));
+  return {rows:rows, cols:cols, per:rows*cols};
+}
+function pages(){ var g=gridSize(); return Math.max(3, Math.ceil(ICONS.length/g.per)); }
+function layoutIcons(){
+  var g=gridSize(), W=innerW();
+  for(var i=0;i<ICONS.length;i++){
+    var it=ICONS[i], pg=Math.floor(i/g.per), idx=i%g.per;
+    var col=Math.floor(idx/g.rows), row=idx%g.rows;
+    it.el.style.left=(14+col*80)+'px';
+    it.el.style.top=(70+row*84)+'px';
+    it.el.style.display=(pg===PAGE)?'':'none';
+  }
+  renderDots();
+}
+function renderDots(){
+  var n=pages(), h='';
+  for(var i=0;i<n;i++) h+='<i class="'+(i===PAGE?'on':'')+'"></i>';
+  document.getElementById('dots').innerHTML=h;
+}
+function goPage(p){
+  var n=pages();
+  if(p<0)p=0; if(p>n-1)p=n-1;
+  PAGE=p; layoutIcons();
+}
+function swipeDesk(){
+  var sx=0,sy=0,t=0;
+  var desk=document.getElementById('desk');
+  desk.addEventListener('touchstart',function(e){
+    var p=e.touches[0]; if(!p)return; sx=p.clientX; sy=p.clientY; t=Date.now();
+  },{passive:true});
+  desk.addEventListener('touchend',function(e){
+    var p=(e.changedTouches&&e.changedTouches[0]); if(!p)return;
+    var dx=p.clientX-sx, dy=p.clientY-sy;
+    if(Math.abs(dx)<55 || Math.abs(dy)>70 || Date.now()-t>900) return;
+    if(e.target.closest('.win')) return;
+    goPage(PAGE + (dx<0?1:-1));
+  },{passive:true});
+}
+
 function fit(){
   var h=innerH(), w=innerW();
   document.documentElement.style.height=h+'px';
@@ -151,8 +210,10 @@ function fit(){
   document.getElementById('desk').style.width=w+'px';
   document.getElementById('wins').style.width=w+'px';
   document.getElementById('wins').style.height=h+'px';
+  if(ICONS.length) layoutIcons();
 }
-fit(); window.addEventListener('resize',function(){fit();reflow();});
+fit(); collectIcons(); layoutIcons(); swipeDesk();
+window.addEventListener('resize',function(){fit();reflow();});
 window.addEventListener('orientationchange',function(){setTimeout(function(){fit();reflow();},260)});
 
 var S={wall:0,island:true,dark:true};
@@ -427,19 +488,19 @@ function phoneDesk(){
     var desk=document.getElementById('desk');
     var old=desk.querySelectorAll('.icon.phoneicon');
     for(var i=0;i<old.length;i++) old[i].parentNode.removeChild(old[i]);
-    var col=0,row=0,W=innerW();
+    collectIcons();                     // 先收走系统图标
     for(var j=0;j<arr.length;j++){
       var a=arr[j];
       var d=document.createElement('div');
       d.className='icon phoneicon';
-      d.style.left=(W-76-(col*76))+'px';
-      d.style.top=(70+row*82)+'px';
       d.innerHTML='<div class="g" style="background:#ffffff22;overflow:hidden">'+
         (a.i?'<img src="'+a.i+'" style="width:34px;height:34px">':'📦')+'</div>'+a.n;
       (function(pkg){ d.onclick=function(){ try{AndroidOS.launch(pkg)}catch(e){} } })(a.p);
       desk.appendChild(d);
-      row++; if(row>5){ row=0; col++; }
+      ICONS.push({el:d, app:'android', name:String(a.n), ic:'📱'});
     }
+    layoutIcons();
+    goPage(Math.floor(5/gridSize().per));   // 跳到手机图标所在的那一页
     notify('同步完成','手机上 '+arr.length+' 个应用已摆到桌面');
   },260);
 }
@@ -460,6 +521,7 @@ function rotateTest(){
 }
 function reflow(){
   var W=innerW(),H=innerH();
+  if(ICONS.length) layoutIcons();
   document.getElementById('island').style.top='8px';
   for(var k in wins){
     var w=wins[k];
