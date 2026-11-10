@@ -79,7 +79,8 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <application android:label="鲸鱼OS" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
-                  <activity android:name=".MainActivity" android:exported="true">
+                  <activity android:name=".MainActivity" android:exported="true"
+                            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|keyboard|navigation|uiMode|density|fontScale">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
