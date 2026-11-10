@@ -87,15 +87,24 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
 .wallsw{width:46px;height:34px;border-radius:9px;margin:0 8px 8px 0;border:2px solid transparent}
 .wallsw.on{border-color:#4aa3ff}
 /* 多任务 */
-#tv{position:absolute;top:0;left:0;right:0;bottom:0;z-index:950;display:none;background:#05080ef2;padding:70px 14px 14px}
+#tv{position:absolute;top:0;left:0;right:0;bottom:0;z-index:950;display:none;background:#05080ef7;padding:56px 12px 12px}
 #tv.show{display:block}
-#tv .card{display:flex;align-items:center;padding:12px;border-radius:14px;background:#ffffff12;
- border:1px solid #ffffff1f;margin-bottom:10px}
-#tv .card .ic{width:38px;height:38px;border-radius:11px;background:#ffffff1c;display:flex;
- align-items:center;justify-content:center;font-size:19px;margin-right:11px}
-#tv .card .nm{flex:1;font-size:13.5px}
-#tv .card .op{padding:7px 12px;border-radius:9px;background:#ffffff1f;font-size:12px;margin-left:6px}
-#tv .empty{text-align:center;color:#7891ab;font-size:13px;padding-top:60px}
+#tv .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 4px}
+#tv .hdr .t{font-size:14px;color:#cfe0f2;font-weight:600}
+#tv .hdr .a{font-size:12px;color:#8fb4d6;padding:6px 12px;border-radius:9px;background:#ffffff14}
+#tv .grid{display:flex;flex-wrap:wrap}
+#tv .card{width:46%;margin:0 2% 12px 0;border-radius:16px;overflow:hidden;background:#111c2e;
+ border:1px solid #ffffff1f;position:relative}
+#tv .card .pv{height:82px;display:flex;align-items:center;justify-content:center;font-size:34px;
+ background:linear-gradient(160deg,#1c2f47,#101a29)}
+#tv .card .bar{display:flex;align-items:center;padding:8px 10px;font-size:11.5px;color:#cfe0f2}
+#tv .card .bar .n{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#tv .card .bar .x{width:22px;height:22px;border-radius:50%;background:#ffffff26;display:flex;
+ align-items:center;justify-content:center;font-size:11px;margin-left:6px}
+#tv .card .bar .x:active{background:#e81123}
+#tv .card .tag{position:absolute;top:6px;left:8px;font-size:10px;padding:2px 6px;border-radius:6px;
+ background:#000000aa;color:#8fd0ff}
+#tv .empty{width:100%;text-align:center;color:#7891ab;font-size:13px;padding:70px 0}
 /* 桌面右键菜单 */
 #ctx{position:absolute;z-index:970;display:none;min-width:170px;padding:6px;border-radius:13px;
  background:#0c1526f8;border:1px solid #ffffff24;box-shadow:0 18px 50px #000c}
@@ -351,13 +360,29 @@ function dragWin(k,tb){
 
 /* ── 多任务 ── */
 function taskview(){
-  closeMenu();var list=$('#tvlist'),ks=Object.keys(wins),h='';
-  if(!ks.length){h='<div class="empty">没有运行中的应用<br><br>点灵动岛 → 开始，打开一个</div>';}
-  else{for(var i=0;i<ks.length;i++){var k=ks[i],a=APPS[k]||{ic:'🪟',t:k};
-    h+='<div class="card"><div class="ic">'+a.ic+'</div><div class="nm">'+a.t+(wins[k].min?' <span style="opacity:.5">（最小化）</span>':'')+'</div>'+
-       '<div class="op" onclick="tvOpen(\''+k+'\')">打开</div><div class="op" onclick="tvClose(\''+k+'\')">关闭</div></div>';}}
-  h+='<div style="text-align:center;margin-top:16px"><button onclick="tvHide()" style="padding:10px 22px;border-radius:12px;border:1px solid #ffffff2e;background:#ffffff14;color:#e8f1ff">返回桌面</button></div>';
+  closeMenu();
+  var list=$('#tvlist'),ks=Object.keys(wins),h='';
+  h='<div class="hdr"><span class="t">🪟 后台 · '+ks.length+' 个应用</span>'+
+    (ks.length?'<span class="a" onclick="tvCloseAll()">全部关闭</span>':'')+'</div><div class="grid">';
+  if(!ks.length){
+    h+='<div class="empty">后台是空的<br><br>点灵动岛 → 开始，打开几个应用<br>它们会一直留在后台</div>';
+  } else {
+    for(var i=0;i<ks.length;i++){
+      var k=ks[i],a=APPS[k]||{ic:'🪟',t:k},w=wins[k];
+      h+='<div class="card">'+
+         (w.min?'<span class="tag">已最小化</span>':'<span class="tag">运行中</span>')+
+         '<div class="pv" onclick="tvOpen(\''+k+'\')">'+a.ic+'</div>'+
+         '<div class="bar" onclick="tvOpen(\''+k+'\')"><span class="n">'+a.t+'</span>'+
+         '<span class="x" onclick="event.stopPropagation();tvClose(\''+k+'\')">✕</span></div></div>';
+    }
+  }
+  h+='</div><div style="text-align:center;margin-top:8px"><button onclick="tvHide()" style="padding:10px 24px;border-radius:12px;border:1px solid #ffffff2e;background:#ffffff14;color:#e8f1ff">返回桌面</button></div>';
   list.innerHTML=h;$('#tv').classList.add('show');
+}
+function tvCloseAll(){
+  var n=Object.keys(wins).length;
+  for(var k in wins){ if(wins[k].el.parentNode) wins[k].el.parentNode.removeChild(wins[k].el); }
+  wins={}; taskview(); notify('后台','已关闭 '+n+' 个应用',2000);
 }
 function tvHide(){$('#tv').classList.remove('show');}
 function tvOpen(k){tvHide();focusWin(k);}
