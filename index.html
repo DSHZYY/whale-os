@@ -82,6 +82,15 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
   font-size:12.5px;color:#dfe9f7;transition:.25s;pointer-events:none;max-width:80%;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #dock{position:absolute;left:0;right:0;bottom:0;height:0}
+/* 从灵动岛掉下来的消息 */
+#msg{position:absolute;left:50%;top:8px;transform:translateX(-50%) translateY(-130%);
+  z-index:940;width:min(84%,340px);padding:12px 14px;border-radius:20px;
+  background:#0d1a2bf7;border:1px solid #ffffff2b;box-shadow:0 18px 50px #000c;
+  transition:transform .32s cubic-bezier(.2,.9,.25,1),opacity .3s;opacity:0;pointer-events:none}
+#msg.show{transform:translateX(-50%) translateY(0);opacity:1}
+#msg .h{display:flex;align-items:center;font-size:11.5px;color:#8fb4d6;margin-bottom:4px}
+#msg .h b{color:#dfe9f7;font-size:12.5px;margin-left:6px;font-weight:600}
+#msg .b{font-size:13px;line-height:1.55;color:#e6eef8}
 </style>
 </head>
 <body>
@@ -111,6 +120,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
   <div class="mi" onclick="toast('这是 AI 做的假系统，不是真的 Windows')"><i>💬</i>试一下通知</div>
 </div>
 
+<div id="msg"><div class="h"><span>🐋</span><b>鲸鱼OS</b></div><div class="b" id="msgb"></div></div>
 <div id="taskview"><div id="tvlist"></div></div>
 <div id="toast"></div>
 
@@ -148,11 +158,21 @@ function tick(){
 setInterval(tick,1000);tick();
 
 /* Toast */
-var toastT=null;
-function toast(msg){
-  var el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('show');
-  clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('show')},2200);
+var msgT=null;
+function toast(msg){ notify('鲸鱼OS', msg); }
+function notify(title, body, ms){
+  var el=document.getElementById('msg');
+  el.querySelector('.h b').textContent=title||'鲸鱼OS';
+  document.getElementById('msgb').textContent=body||'';
+  var isl=document.getElementById('island');
+  el.classList.add('show');
+  if(isl) isl.classList.add('live');
+  clearTimeout(msgT);
+  msgT=setTimeout(function(){
+    el.classList.remove('show');
+    var isl2=document.getElementById('island');
+    if(isl2&&!menuOpen) isl2.classList.remove('live');
+  }, ms||2600);
 }
 
 /* 开始菜单：挂在灵动岛下面 */
@@ -377,6 +397,43 @@ function launch(k){
   if(k==='wall')return setWall();
   open(k);
 }
+
+/* 硬件返回键：单次回退，连按两下回开始菜单 */
+var lastBack=0;
+window.onBackPressed=function(){
+  var now=Date.now();
+  var dbl=(now-lastBack)<700;
+  lastBack=now;
+
+  var tv=document.getElementById('taskview');
+  if(tv.classList.contains('show')){ tvHide(); return true; }
+  if(menuOpen){ closeMenu(); return true; }
+  var mp=document.getElementById('msg');
+  if(mp.classList.contains('show')){ mp.classList.remove('show'); return true; }
+
+  if(dbl){                       // 连按两下 → 开始菜单
+    if(!menuOpen) islandTap();
+    toast('回到开始菜单');
+    return true;
+  }
+
+  // 单次：收起最上面的窗口（最小化）
+  var top=null,tz=-1;
+  for(var k in wins){
+    var w=wins[k];
+    if(w.min)continue;
+    var z=parseInt(w.el.style.zIndex)||0;
+    if(z>tz){tz=z;top=k}
+  }
+  if(top){ minWin(top); return true; }
+  toast('已经在桌面 · 再快速按一下回开始菜单');
+  return true;   // 始终拦下，不退出 App
+};
+window.onKey=(function(prev){
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'||e.keyCode===27){ window.onBackPressed(); }
+  });
+})();
 
 /* 点空白关菜单 */
 document.addEventListener('click',function(e){
