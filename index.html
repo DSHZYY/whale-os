@@ -10,13 +10,13 @@
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif;background:#000;color:#fff}
-#boot{position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99;transition:opacity .6s}
+#boot{position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99;transition:opacity .6s}
 #boot .logo{width:86px;height:86px;border-radius:22px;background:linear-gradient(135deg,#2b6cff,#22d3ee);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 10px 40px #0af6}
 #boot .name{margin-top:18px;font-size:22px;letter-spacing:4px;color:#e8f1ff}
 #boot .bar{margin-top:26px;width:180px;height:4px;border-radius:2px;background:#ffffff26;overflow:hidden}
 #boot .bar i{display:block;height:100%;width:0;background:#4aa3ff;animation:load 2.2s ease forwards}
 @keyframes load{to{width:100%}}
-#desk{position:fixed;inset:0;background:
+#desk{position:fixed;top:0;left:0;right:0;bottom:0;background:
  radial-gradient(1200px 600px at 70% 10%,#1b4a7a55,transparent 60%),
  radial-gradient(900px 500px at 20% 90%,#0a5f7a44,transparent 60%),
  linear-gradient(180deg,#0b142c 0%,#123152 55%,#0a1b33 100%);
@@ -72,6 +72,13 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,"Segoe 
 </div>
 <script>
 const $=s=>document.querySelector(s);
+// 老 WebView 兼容：强制窗口尺寸
+(function fit(){
+  const f=()=>{document.documentElement.style.height=innerHeight+'px';
+               document.body.style.height=innerHeight+'px';};
+  f(); addEventListener('resize',f); setTimeout(f,300);
+})();
+
 const wins={};
 function menu(){$('#menu').classList.toggle('open')}
 function note(t){const n=$('#notify');n.textContent=t;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),3500)}
