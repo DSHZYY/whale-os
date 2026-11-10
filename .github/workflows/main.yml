@@ -102,9 +102,20 @@ jobs:
                   web = new WebView(this);
                   WebSettings s = web.getSettings();
                   s.setJavaScriptEnabled(true);
+                  s.setDomStorageEnabled(true);
+                  s.setAllowFileAccess(true);
                   s.setTextZoom(100);
+                  web.setBackgroundColor(0xFF0B142C);
                   web.loadUrl("file:///android_asset/index.html");
                   setContentView(web);
+              }
+              @Override public void onBackPressed() {
+                  if (web == null) { super.onBackPressed(); return; }
+                  web.evaluateJavascript("(window.onBackPressed?window.onBackPressed():false)", value -> {
+                      if (value == null || !value.contains("true")) {
+                          runOnUiThread(() -> finish());
+                      }
+                  });
               }
               @Override public void onWindowFocusChanged(boolean has) {
                   super.onWindowFocusChanged(has);
