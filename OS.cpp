@@ -31,6 +31,8 @@
 #include <utility>
 #include <cwchar>
 #include <cmath>
+#include <cstdarg>
+#include <cstdio>
 
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdiplus.lib")
@@ -38,6 +40,26 @@
 #pragma comment(lib, "shell32.lib")
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(linker, "/SUBSYSTEM:WINDOWS")
+
+// --- 诊断日志：写在 exe 同目录 whaleos.log --------------------------------
+static void OsLog(const char* fmt, ...)
+{
+    char line[512];
+    va_list ap; va_start(ap, fmt);
+    vsnprintf(line, sizeof(line), fmt, ap);
+    va_end(ap);
+    wchar_t p[MAX_PATH] = {0};
+    GetModuleFileNameW(0, p, MAX_PATH);
+    std::wstring wp(p);
+    size_t pos = wp.find_last_of(L"\\/");
+    if (pos != std::wstring::npos) wp = wp.substr(0, pos + 1);
+    wp += L"whaleos.log";
+    FILE* f = _wfopen(wp.c_str(), L"a, ccs=UTF-8");
+    if (f) { fputs(line, f); fputc('\n', f); fclose(f); }
+}
+static bool g_normMode = false;   // 分层窗口失败后改普通窗口
+static int  g_lwFail   = 0;
+
 
 using namespace Gdiplus;
 
@@ -3370,7 +3392,25 @@ static void RenderFrame()
     bf.BlendFlags = 0;
     bf.SourceConstantAlpha = 255;
     bf.AlphaFormat = AC_SRC_ALPHA;
-    UpdateLayeredWindow(g_hwnd, g_dcScr, &ptDst, &sz, g_dcMem, &ptSrc, 0, &bf, ULW_ALPHA);
+    if (g_normMode)
+    {
+        InvalidateRect(g_hwnd, 0, FALSE);
+        return;
+    }
+    if (!UpdateLayeredWindow(g_hwnd, g_dcScr, &ptDst, &sz, g_dcMem, &ptSrc, 0, &bf, ULW_ALPHA))
+    {
+        DWORD err = GetLastError();
+        if (++g_lwFail >= 3)
+        {
+            OsLog("UpdateLayeredWindow failed err=%lu -> fallback to normal window", (unsigned long)err);
+            g_normMode = true;
+            LONG ex = GetWindowLongW(g_hwnd, GWL_EXSTYLE);
+            SetWindowLongW(g_hwnd, GWL_EXSTYLE, ex & ~WS_EX_LAYERED);
+            SetWindowPos(g_hwnd, HWND_TOPMOST, 0, 0, g_W, g_H,
+                         SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+            InvalidateRect(g_hwnd, 0, TRUE);
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -3378,6 +3418,16 @@ static void RenderFrame()
 // ---------------------------------------------------------------------------
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    if (msg == WM_ERASEBKGND && g_normMode) return 1;
+    if (msg == WM_PAINT)
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hwnd, &ps);
+        if (g_normMode && g_dcMem != 0)
+            BitBlt(hdc, 0, 0, g_W, g_H, g_dcMem, 0, 0, SRCCOPY);
+        EndPaint(hwnd, &ps);
+        return 0;
+    }
     if (msg == WM_TIMER)
     {
         if (wParam == 1)
@@ -3539,6 +3589,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
     if (g_hwnd == 0) return 1;
 
     EnsureDIB();
+    OsLog("boot: screen=%dx%d dib_bits=%p dcMem=%p", g_W, g_H, (void*)g_bits, (void*)g_dcMem);
     InitFonts();
     PrecomputeStars();
     SyncRealDesktop();
