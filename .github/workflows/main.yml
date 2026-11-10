@@ -91,12 +91,24 @@ jobs:
           cat > android/app/src/main/java/os/whale/MainActivity.java <<'EOF'
           package os.whale;
           import android.app.Activity;
+          import android.content.Intent;
+          import android.content.pm.PackageManager;
+          import android.content.pm.ResolveInfo;
+          import android.graphics.Bitmap;
+          import android.graphics.Canvas;
+          import android.graphics.drawable.Drawable;
           import android.os.Bundle;
+          import android.util.Base64;
           import android.view.View;
+          import android.webkit.JavascriptInterface;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
+          import java.io.ByteArrayOutputStream;
+          import java.util.List;
+
           public class MainActivity extends Activity {
               private WebView web;
+
               @Override protected void onCreate(Bundle b) {
                   super.onCreate(b);
                   web = new WebView(this);
@@ -106,9 +118,60 @@ jobs:
                   s.setAllowFileAccess(true);
                   s.setTextZoom(100);
                   web.setBackgroundColor(0xFF0B142C);
+                  web.addJavascriptInterface(new Bridge(), "AndroidOS");
                   web.loadUrl("file:///android_asset/index.html");
                   setContentView(web);
               }
+
+              public class Bridge {
+                  @JavascriptInterface public String ver() { return "whaleos2-android"; }
+
+                  @JavascriptInterface public String listApps() {
+                      StringBuilder sb = new StringBuilder("[");
+                      int n = 0;
+                      try {
+                          PackageManager pm = getPackageManager();
+                          Intent main = new Intent(Intent.ACTION_MAIN, null);
+                          main.addCategory(Intent.CATEGORY_LAUNCHER);
+                          List<ResolveInfo> apps = pm.queryIntentActivities(main, 0);
+                          for (ResolveInfo ri : apps) {
+                              if (n >= 40) break;
+                              String pkg = ri.activityInfo.packageName;
+                              if (pkg.equals(getPackageName())) continue;
+                              String label = String.valueOf(ri.loadLabel(pm));
+                              String icon = "";
+                              try {
+                                  Drawable d = ri.loadIcon(pm);
+                                  int sz = 96;
+                                  Bitmap bmp = Bitmap.createBitmap(sz, sz, Bitmap.Config.ARGB_8888);
+                                  Canvas c = new Canvas(bmp);
+                                  d.setBounds(0, 0, sz, sz);
+                                  d.draw(c);
+                                  ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                                  bmp.compress(Bitmap.CompressFormat.PNG, 80, bo);
+                                  icon = "data:image/png;base64," + Base64.encodeToString(bo.toByteArray(), Base64.NO_WRAP);
+                              } catch (Throwable t) { }
+                              if (n > 0) sb.append(",");
+                              sb.append("{\"n\":\"").append(esc(label)).append("\",\"p\":\"").append(pkg)
+                                .append("\",\"i\":\"").append(icon).append("\"}");
+                              n++;
+                          }
+                      } catch (Throwable t) { }
+                      return sb.append("]").toString();
+                  }
+
+                  @JavascriptInterface public void launch(String pkg) {
+                      try {
+                          Intent i = getPackageManager().getLaunchIntentForPackage(pkg);
+                          if (i != null) startActivity(i);
+                      } catch (Throwable t) { }
+                  }
+
+                  private String esc(String s) {
+                      return s.replace("\\", "\\\\").replace("\"", "\\\"");
+                  }
+              }
+
               @Override public void onBackPressed() {
                   if (web == null) { super.onBackPressed(); return; }
                   web.evaluateJavascript("(window.onBackPressed?window.onBackPressed():false)", value -> {
@@ -117,6 +180,7 @@ jobs:
                       }
                   });
               }
+
               @Override public void onWindowFocusChanged(boolean has) {
                   super.onWindowFocusChanged(has);
                   if (has) getWindow().getDecorView().setSystemUiVisibility(
