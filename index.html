@@ -8,27 +8,38 @@
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;
-  font-family:-apple-system,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",system-ui,sans-serif}
+ font-family:-apple-system,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",system-ui,sans-serif}
+/* 壁纸 */
 #desk{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;
-  background:radial-gradient(1200px 600px at 70% 8%,#1b4a7a66,transparent 60%),
-             radial-gradient(900px 500px at 15% 92%,#0a5f7a55,transparent 60%),
-             linear-gradient(180deg,#0b142c,#123152 58%,#0a1b33)}
+ background:radial-gradient(1200px 600px at 70% 8%,#1b4a7a66,transparent 60%),
+            radial-gradient(900px 500px at 15% 92%,#0a5f7a55,transparent 60%),
+            linear-gradient(180deg,#0b142c,#123152 58%,#0a1b33)}
 #desk.w1{background:linear-gradient(180deg,#141026,#2b1b4d 60%,#0d0b1a)}
 #desk.w2{background:linear-gradient(160deg,#07211f,#0b3b36 60%,#04120f)}
 #desk.w3{background:linear-gradient(180deg,#2a1030,#4a1a3d 60%,#1a0a18)}
-
-/* ── 桌面图标 ── */
-.icon{position:absolute;width:64px;text-align:center;font-size:11px;color:#e9f2ff;cursor:pointer}
-.icon .g{width:48px;height:48px;margin:0 auto 4px;border-radius:13px;display:flex;align-items:center;justify-content:center;
-  font-size:22px;background:linear-gradient(160deg,#ffffff33,#ffffff14);border:1px solid #ffffff33}
-
-/* ── 灵动岛 ── */
+#desk.w4{background:linear-gradient(160deg,#1b1206,#4a2a0a 55%,#120b04)}
+#desk.w5{background:radial-gradient(700px 500px at 50% 30%,#ffffff22,transparent 60%),linear-gradient(180deg,#101418,#1c2430 60%,#0b0f14)}
+/* 大时钟 */
+#clock{position:absolute;left:0;right:0;top:64px;text-align:center;pointer-events:none;transition:opacity .25s}
+#clock b{display:block;font-size:56px;font-weight:200;letter-spacing:2px;color:#eaf3ff;
+ text-shadow:0 6px 30px #0008}
+#clock span{display:block;margin-top:2px;font-size:12.5px;color:#9fb8d0;letter-spacing:1px}
+#clock.off{opacity:0}
+/* 图标 */
+.icon{position:absolute;width:66px;text-align:center;font-size:11px;color:#e9f2ff;cursor:pointer;z-index:5}
+.icon .g{width:48px;height:48px;margin:0 auto 4px;border-radius:13px;display:flex;align-items:center;
+ justify-content:center;font-size:22px;background:linear-gradient(160deg,#ffffff33,#ffffff14);
+ border:1px solid #ffffff33;overflow:hidden}
+.icon .g img{width:34px;height:34px}
+.icon:active .g{background:#ffffff3a}
+/* 灵动岛 */
 #island{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:900;
-  background:#070a12f2;border:1px solid #ffffff26;border-radius:22px;
-  display:flex;align-items:center;justify-content:center;overflow:hidden;
-  padding:0 15px;font-size:13px;color:#dfe9f7;box-shadow:0 8px 26px #000a;
-  transition:all .3s cubic-bezier(.25,.9,.3,1);max-width:88%}
+ background:#070a12f2;border:1px solid #ffffff26;border-radius:22px;display:flex;align-items:center;
+ justify-content:center;overflow:hidden;padding:0 15px;font-size:13px;color:#dfe9f7;
+ box-shadow:0 8px 26px #000a;transition:all .3s cubic-bezier(.25,.9,.3,1);max-width:88%}
 #island .pill{display:flex;align-items:center;height:38px;white-space:nowrap}
+#island .pill .t{font-weight:600;letter-spacing:.5px}
+#island .pill .dot{width:6px;height:6px;border-radius:50%;background:#4ade80;margin-left:8px}
 #icard{display:none;width:100%;padding:10px 2px}
 #island.big{width:88%;max-width:350px;border-radius:20px;background:#0d1a2bf7;padding:10px 14px}
 #island.big .pill{display:none}
@@ -36,596 +47,494 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
 #icard .ih{display:flex;align-items:center;font-size:11.5px;color:#87abcd;margin-bottom:3px}
 #icard .ih b{color:#e3edf8;font-size:12px;margin-left:6px;font-weight:600}
 #icard .ib{font-size:13px;line-height:1.5;color:#e8f0fa;word-break:break-word}
-#island .t{font-weight:600;letter-spacing:.5px}
-#island .dot{width:6px;height:6px;border-radius:50%;background:#4ade80;margin-left:8px}
-#island.live{background:#0d1a2b}
-#menu{position:absolute;top:54px;left:50%;transform:translateX(-50%) translateY(-8px);opacity:0;pointer-events:none;
-  z-index:899;width:270px;max-height:70%;overflow:auto;padding:10px;border-radius:18px;
-  background:#0c1526f7;border:1px solid #ffffff24;box-shadow:0 22px 60px #000c;transition:.18s}
+/* 开始菜单 */
+#menu{position:absolute;top:54px;left:50%;transform:translateX(-50%) translateY(-8px);opacity:0;
+ pointer-events:none;z-index:899;width:280px;max-height:72%;overflow:auto;padding:10px;border-radius:18px;
+ background:#0c1526f7;border:1px solid #ffffff24;box-shadow:0 22px 60px #000c;transition:.18s}
 #menu.open{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
 #menu h4{margin:8px 8px 4px;font-size:11px;color:#7f96b3;font-weight:600;letter-spacing:1px}
 .mi{display:flex;align-items:center;padding:9px 10px;border-radius:10px;font-size:13.5px;color:#e8f1ff}
 .mi:active{background:#ffffff1f}
 .mi i{font-style:normal;margin-right:9px;font-size:16px;width:20px;text-align:center}
-
-/* ── 窗口 ── */
+/* 窗口 */
 #wins{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
-.win{position:absolute;pointer-events:auto;display:flex;flex-direction:column;
-  border-radius:13px;overflow:hidden;background:#0e1729;border:1px solid #ffffff26;
-  box-shadow:0 20px 60px #000b}
+.win{position:absolute;pointer-events:auto;display:flex;flex-direction:column;border-radius:13px;
+ overflow:hidden;background:#0e1729;border:1px solid #ffffff26;box-shadow:0 20px 60px #000b}
 .win .tb{height:36px;display:flex;align-items:center;padding:0 6px 0 12px;background:#ffffff10;
-  font-size:12.5px;color:#dbe7f5}
+ font-size:12.5px;color:#dbe7f5}
 .win .tb b{flex:1;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.win .tb .btn{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-  font-size:13px;color:#cfe0f2;margin-left:2px}
+.win .tb .btn{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;
+ justify-content:center;font-size:13px;color:#cfe0f2;margin-left:2px}
 .win .tb .btn:active{background:#ffffff24}
 .win .tb .x:active{background:#e81123}
 .win .bd{flex:1;overflow:auto;padding:12px;font-size:13px;line-height:1.7;color:#d7e4f3}
-.win textarea{width:100%;height:100%;min-height:120px;background:transparent;border:0;color:#fff;font:inherit;
-  resize:none;outline:none;-webkit-user-select:text;user-select:text}
 .win.max{border-radius:0}
-.btnrow{display:flex;flex-wrap:wrap;margin-top:8px}
+.win textarea{width:100%;height:100%;min-height:130px;background:transparent;border:0;color:#fff;
+ font:inherit;resize:none;outline:none;-webkit-user-select:text;user-select:text}
+.btnrow{display:flex;flex-wrap:wrap;margin-top:6px}
 .btnrow button{margin:4px 6px 4px 0;padding:8px 14px;border-radius:10px;border:1px solid #ffffff2e;
-  background:#ffffff14;color:#e8f1ff;font-size:12.5px}
+ background:#ffffff14;color:#e8f1ff;font-size:12.5px}
 .btnrow button:active{background:#4aa3ff44}
-.sw{width:44px;height:24px;border-radius:14px;background:#ffffff26;position:relative;transition:.2s}
+.row{display:flex;align-items:center;justify-content:space-between;padding:10px 2px;border-bottom:1px solid #ffffff12}
+.row:last-child{border-bottom:0}
+.row .k{font-size:13px}
+.row .v{color:#8fb4d6;font-size:12.5px}
+.sw{width:44px;height:24px;border-radius:14px;background:#ffffff26;position:relative;transition:.2s;flex:none}
 .sw.on{background:#3b82f6}
 .sw i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
 .sw.on i{left:22px}
-
-/* ── 多任务 ── */
-#taskview{position:absolute;top:0;left:0;right:0;bottom:0;z-index:950;display:none;
-  background:#05080ef2;padding:70px 14px 14px}
-#taskview.show{display:block}
-#taskview .card{display:flex;align-items:center;padding:12px;border-radius:14px;background:#ffffff12;
-  border:1px solid #ffffff1f;margin-bottom:10px}
-#taskview .card .ic{width:38px;height:38px;border-radius:11px;background:#ffffff1c;display:flex;
-  align-items:center;justify-content:center;font-size:19px;margin-right:11px}
-#taskview .card .nm{flex:1;font-size:13.5px}
-#taskview .card .op{padding:7px 12px;border-radius:9px;background:#ffffff1f;font-size:12px;margin-left:6px}
-#taskview .empty{text-align:center;color:#7891ab;font-size:13px;padding-top:60px}
-
-#toast{position:absolute;left:50%;bottom:74px;transform:translateX(-50%) translateY(20px);opacity:0;
-  z-index:960;background:#0b1220f2;border:1px solid #ffffff26;border-radius:14px;padding:10px 16px;
-  font-size:12.5px;color:#dfe9f7;transition:.25s;pointer-events:none;max-width:80%;text-align:center}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#dock{position:absolute;left:0;right:0;bottom:0;height:0}
-#dots{position:absolute;left:0;right:0;bottom:16px;text-align:center;z-index:800;pointer-events:none}
+.wallgrid{display:flex;flex-wrap:wrap;margin-top:6px}
+.wallsw{width:46px;height:34px;border-radius:9px;margin:0 8px 8px 0;border:2px solid transparent}
+.wallsw.on{border-color:#4aa3ff}
+/* 多任务 */
+#tv{position:absolute;top:0;left:0;right:0;bottom:0;z-index:950;display:none;background:#05080ef2;padding:70px 14px 14px}
+#tv.show{display:block}
+#tv .card{display:flex;align-items:center;padding:12px;border-radius:14px;background:#ffffff12;
+ border:1px solid #ffffff1f;margin-bottom:10px}
+#tv .card .ic{width:38px;height:38px;border-radius:11px;background:#ffffff1c;display:flex;
+ align-items:center;justify-content:center;font-size:19px;margin-right:11px}
+#tv .card .nm{flex:1;font-size:13.5px}
+#tv .card .op{padding:7px 12px;border-radius:9px;background:#ffffff1f;font-size:12px;margin-left:6px}
+#tv .empty{text-align:center;color:#7891ab;font-size:13px;padding-top:60px}
+/* 桌面右键菜单 */
+#ctx{position:absolute;z-index:970;display:none;min-width:170px;padding:6px;border-radius:13px;
+ background:#0c1526f8;border:1px solid #ffffff24;box-shadow:0 18px 50px #000c}
+#ctx.show{display:block}
+#ctx div{padding:9px 12px;border-radius:9px;font-size:13px;color:#e8f1ff}
+#ctx div:active{background:#ffffff1f}
+#dots{position:absolute;left:0;right:0;bottom:14px;text-align:center;z-index:800;pointer-events:none}
 #dots i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ffffff45;margin:0 4px}
 #dots i.on{background:#ffffffd0;width:18px;border-radius:4px}
-/* 从灵动岛掉下来的消息 */
-#msg{position:absolute;left:50%;top:8px;transform:translateX(-50%) translateY(-130%);
-  z-index:940;width:86%;max-width:360px;padding:12px 14px;border-radius:20px;
-  background:#0d1a2bf7;border:1px solid #ffffff2b;box-shadow:0 18px 50px #000c;
-  transition:transform .32s cubic-bezier(.2,.9,.25,1),opacity .3s;opacity:0;pointer-events:none}
-#msg.show{transform:translateX(-50%) translateY(0);opacity:1}
-#msg .h{display:flex;align-items:center;font-size:11.5px;color:#8fb4d6;margin-bottom:4px}
-#msg .h b{color:#dfe9f7;font-size:12.5px;margin-left:6px;font-weight:600}
-#msg .b{font-size:13px;line-height:1.55;color:#e6eef8}
 </style>
 </head>
 <body>
 <div id="desk">
-  <div class="icon" style="left:14px;top:70px" onclick="openApp('note')"><div class="g">📝</div>记事本</div>
-  <div class="icon" style="left:14px;top:150px" onclick="openApp('trash')"><div class="g">🗑️</div>回收站</div>
-  <div class="icon" style="left:14px;top:230px" onclick="openApp('settings')"><div class="g">⚙️</div>设置</div>
-  <div class="icon" style="left:14px;top:310px" onclick="openApp('about')"><div class="g">ℹ️</div>关于</div>
-  <div class="icon" style="left:14px;top:390px" onclick="openApp('apps')"><div class="g">🗂️</div>应用</div>
+  <div id="clock"><b id="ct">--:--</b><span id="cd"></span></div>
+  <div class="icon" style="left:14px;top:230px" onclick="openApp('note')"><div class="g">📝</div>记事本</div>
+  <div class="icon" style="left:14px;top:314px" onclick="openApp('paint')"><div class="g">🎨</div>画图</div>
+  <div class="icon" style="left:14px;top:398px" onclick="openApp('trash')"><div class="g">🗑️</div>回收站</div>
+  <div class="icon" style="left:14px;top:482px" onclick="openApp('settings')"><div class="g">⚙️</div>设置</div>
+  <div class="icon" style="left:14px;top:566px" onclick="openApp('apps')"><div class="g">🗂️</div>应用</div>
 </div>
 <div id="dots"></div>
 <div id="wins"></div>
 
 <div id="island" onclick="islandTap()">
-  <div class="pill"><span class="t" id="itime">--:--</span><span class="dot" id="idot"></span></div>
+  <div class="pill"><span class="t" id="itime">--:--</span><span class="dot"></span></div>
   <div id="icard"><div class="ih">🐋 <b id="ititle">鲸鱼OS</b></div><div class="ib" id="ibody"></div></div>
 </div>
 
 <div id="menu">
-  <h4>开始</h4>
-  <div class="mi" onclick="openApp('apps')"><i>🗂️</i>应用（同步）</div>
+  <h4>常用</h4>
   <div class="mi" onclick="openApp('note')"><i>📝</i>记事本</div>
+  <div class="mi" onclick="openApp('paint')"><i>🎨</i>画图</div>
+  <div class="mi" onclick="openApp('apps')"><i>🗂️</i>所有应用</div>
   <div class="mi" onclick="openApp('settings')"><i>⚙️</i>设置</div>
   <div class="mi" onclick="openApp('about')"><i>ℹ️</i>关于鲸鱼OS</div>
   <h4>系统</h4>
   <div class="mi" onclick="taskview()"><i>🪟</i>多任务</div>
   <div class="mi" onclick="appSync()"><i>🔄</i>同步电脑桌面</div>
   <div class="mi" onclick="phoneDesk()"><i>📲</i>同步手机桌面</div>
-  <div class="mi" onclick="rotateTest()"><i>📱</i>横屏 / 竖屏</div>
-  <div class="mi" onclick="toast('这是 AI 做的假系统，不是真的 Windows')"><i>💬</i>试一下通知</div>
+  <div class="mi" onclick="notify('提示','这只是个假 Windows，不是真的系统')"><i>💬</i>试一下通知</div>
 </div>
 
-<div id="msg"><div class="h"><span>🐋</span><b>鲸鱼OS</b></div><div class="b" id="msgb"></div></div>
-<div id="taskview"><div id="tvlist"></div></div>
-<div id="toast"></div>
+<div id="tv"><div id="tvlist"></div></div>
+<div id="ctx"><div onclick="ctxNew()">新建文本文档</div><div onclick="ctxWall()">换个壁纸</div><div onclick="ctxClean()">整理桌面</div></div>
 
 <script>
 var $=function(s){return document.querySelector(s)};
-// 出错就把错误从灵动岛掉下来，方便排查
-window.onerror=function(m,src,line,col,err){
-  try{ notify('鲸鱼OS 出错', String(m)+'  (第'+line+'行)', 8000); }catch(e){}
-  return true;
-};
-var innerW=function(){return window.innerWidth||document.documentElement.clientWidth};
-var innerH=function(){return window.innerHeight||document.documentElement.clientHeight};
+window.onerror=function(m,src,l){try{notify('鲸鱼OS 出错',String(m)+' (第'+l+'行)',8000);}catch(e){} return true;};
+function innerW(){return window.innerWidth||document.documentElement.clientWidth}
+function innerH(){return window.innerHeight||document.documentElement.clientHeight}
 
-/* ── 分页桌面 ── */
-var ICONS=[];      // {el, app, name, ic}
-var PAGE=0;
+/* ── 设置 ── */
+var S={wall:0,clock:true,island:true,h24:true,accent:'#3b82f6'};
+try{var _s=localStorage.getItem('whaleos2');if(_s)S=JSON.parse(_s);}catch(e){}
+function saveS(){try{localStorage.setItem('whaleos2',JSON.stringify(S));}catch(e){}}
+
+/* ── 桌面分页 ── */
+var ICONS=[],PAGE=0;
 function collectIcons(){
   ICONS=[];
   var els=document.querySelectorAll('#desk .icon');
   for(var i=0;i<els.length;i++){
-    var e=els[i];
-    var m=(e.getAttribute('onclick')||'').match(/'([^']+)'/);
-    ICONS.push({el:e, app:m?m[1]:'note', name:e.textContent.trim(),
-                ic:(e.querySelector('.g')||{}).textContent||'📦'});
+    var e=els[i],m=(e.getAttribute('onclick')||'').match(/'([^']+)'/);
+    ICONS.push({el:e,app:m?m[1]:'note',name:e.textContent.trim()});
   }
 }
-function gridSize(){
-  var rows=Math.max(3,Math.floor((innerH()-150)/84));
-  var cols=Math.max(2,Math.floor((innerW()-90)/80));
-  return {rows:rows, cols:cols, per:rows*cols};
-}
-function pages(){ var g=gridSize(); return Math.max(3, Math.ceil(ICONS.length/g.per)); }
+function grid(){var rows=Math.max(3,Math.floor((innerH()-190)/84)),cols=Math.max(2,Math.floor((innerW()-96)/78));
+  return {rows:rows,cols:cols,per:rows*cols};}
+function pageCount(){var g=grid();return Math.max(3,Math.ceil(ICONS.length/g.per));}
 function layoutIcons(){
-  var g=gridSize(), W=innerW();
+  var g=grid();
   for(var i=0;i<ICONS.length;i++){
-    var it=ICONS[i], pg=Math.floor(i/g.per), idx=i%g.per;
-    var col=Math.floor(idx/g.rows), row=idx%g.rows;
-    it.el.style.left=(14+col*80)+'px';
-    it.el.style.top=(70+row*84)+'px';
+    var it=ICONS[i],pg=Math.floor(i/g.per),idx=i%g.per;
+    it.el.style.left=(14+Math.floor(idx/g.rows)*78)+'px';
+    it.el.style.top=(Math.min(210,120)+ (idx%g.rows)*84)+'px';
     it.el.style.display=(pg===PAGE)?'':'none';
   }
-  renderDots();
+  var n=pageCount(),h='';
+  for(var j=0;j<n;j++)h+='<i class="'+(j===PAGE?'on':'')+'"></i>';
+  $('#dots').innerHTML=h;
 }
-function renderDots(){
-  var n=pages(), h='';
-  for(var i=0;i<n;i++) h+='<i class="'+(i===PAGE?'on':'')+'"></i>';
-  document.getElementById('dots').innerHTML=h;
-}
-function goPage(p){
-  var n=pages();
-  if(p<0)p=0; if(p>n-1)p=n-1;
-  PAGE=p; layoutIcons();
-}
-function swipeDesk(){
-  var sx=0,sy=0,t=0;
-  var desk=document.getElementById('desk');
-  desk.addEventListener('touchstart',function(e){
-    var p=e.touches[0]; if(!p)return; sx=p.clientX; sy=p.clientY; t=Date.now();
-  },{passive:true});
-  desk.addEventListener('touchend',function(e){
-    var p=(e.changedTouches&&e.changedTouches[0]); if(!p)return;
-    var dx=p.clientX-sx, dy=p.clientY-sy;
-    if(Math.abs(dx)<55 || Math.abs(dy)>70 || Date.now()-t>900) return;
-    if(e.target.closest('.win')) return;
-    goPage(PAGE + (dx<0?1:-1));
-  },{passive:true});
-}
+function goPage(p){var n=pageCount();if(p<0)p=0;if(p>n-1)p=n-1;PAGE=p;layoutIcons();}
 
 function fit(){
-  var h=innerH(), w=innerW();
-  document.documentElement.style.height=h+'px';
-  document.body.style.height=h+'px';
-  document.getElementById('desk').style.width=w+'px';
-  document.getElementById('wins').style.width=w+'px';
-  document.getElementById('wins').style.height=h+'px';
-  if(ICONS.length) layoutIcons();
-}
-fit(); collectIcons(); layoutIcons(); swipeDesk();
-window.addEventListener('resize',function(){fit();reflow();});
-window.addEventListener('orientationchange',function(){setTimeout(function(){fit();reflow();},260)});
-
-var S={wall:0,island:true,dark:true};
-try{var raw=localStorage.getItem('whaleos2');if(raw)S=JSON.parse(raw)}catch(e){}
-function saveS(){try{localStorage.setItem('whaleos2',JSON.stringify(S))}catch(e){}}
-function applyS(){
-  var d=document.getElementById('desk');
-  d.className=S.wall?'w'+S.wall:'';
-  document.getElementById('island').style.display=S.island?'flex':'none';
+  var h=innerH(),w=innerW();
+  document.documentElement.style.height=h+'px';document.body.style.height=h+'px';
+  $('#desk').style.width=w+'px';$('#wins').style.width=w+'px';$('#wins').style.height=h+'px';
+  if(ICONS.length)layoutIcons();
 }
 
-/* 闹钟 */
+/* ── 时钟 ── */
 function tick(){
   var d=new Date(),p=function(n){return String(n).padStart(2,'0')};
-  var t=p(d.getHours())+':'+p(d.getMinutes());
-  document.getElementById('itime').textContent=t;
-}
-setInterval(tick,1000);tick();
-
-/* Toast */
-var msgT=null, islandBusy=false;
-function toast(msg){ notify('鲸鱼OS', msg); }
-function dismissIsland(){
-  var isl=document.getElementById('island');
-  if(!isl)return;
-  isl.classList.remove('big');
-  islandBusy=false;
-  if(!menuOpen) isl.classList.remove('live');
-}
-function notify(title, body, ms){
-  var isl=document.getElementById('island');
-  if(!isl)return;
-  document.getElementById('ititle').textContent=title||'鲸鱼OS';
-  document.getElementById('ibody').textContent=body||'';
-  isl.classList.add('big','live');
-  islandBusy=true;
-  clearTimeout(msgT);
-  msgT=setTimeout(function(){ if(islandBusy) dismissIsland(); }, ms||2800);
+  var hh=S.h24?d.getHours():(d.getHours()%12||12);
+  var t=p(hh)+':'+p(d.getMinutes());
+  $('#itime').textContent=t;
+  $('#ct').textContent=t;
+  $('#cd').textContent=d.getFullYear()+' 年 '+(d.getMonth()+1)+' 月 '+d.getDate()+' 日 '+['日','一','二','三','四','五','六'][d.getDay()]+' · 鲸鱼OS';
 }
 
-/* 开始菜单：挂在灵动岛下面 */
+/* ── 通知（岛自己变形）── */
+var msgT=null,islandBusy=false;
+function dismissIsland(){ $('#island').classList.remove('big'); islandBusy=false; }
+function notify(title,body,ms){
+  $('#ititle').textContent=title||'鲸鱼OS';$('#ibody').textContent=body||'';
+  $('#island').classList.add('big');islandBusy=true;
+  clearTimeout(msgT);msgT=setTimeout(dismissIsland,ms||2800);
+}
+function toast(m){notify('鲸鱼OS',m);}
+
+/* ── 开始菜单 ── */
 var menuOpen=false;
 function islandTap(){
-  if(islandBusy){ dismissIsland(); return; }
-  var m=document.getElementById('menu');
+  if(islandBusy){dismissIsland();return;}
   menuOpen=!menuOpen;
-  if(menuOpen){m.classList.add('open');document.getElementById('island').classList.add('live')}
-  else{m.classList.remove('open');document.getElementById('island').classList.remove('live')}
+  $('#menu').classList.toggle('open',menuOpen);
+  $('#island').classList.toggle('big',false);
 }
-function closeMenu(){
-  if(menuOpen){menuOpen=false;
-    document.getElementById('menu').classList.remove('open');
-    document.getElementById('island').classList.remove('live')}
-}
+function closeMenu(){menuOpen=false;$('#menu').classList.remove('open');}
 
-/* 应用注册表 */
+/* ── 应用 ── */
 var APPS={
-  note:{t:'记事本',ic:'📝',w:330,h:300,body:function(){return '<textarea placeholder="随便打点字…"></textarea>'}},
-  trash:{t:'回收站',ic:'🗑️',w:300,h:200,body:function(){return '<div>🗑️ 这里空空如也<br><br><small style="opacity:.6">（演示用，不真的删除文件）</small></div>'}},
-  about:{t:'关于鲸鱼OS',ic:'ℹ️',w:320,h:250,body:function(){return '<div><b>鲸鱼OS 2.0 · 安卓版</b><br><br>灵动岛 · 开始菜单 · 多任务 · 窗口最大化最小化 · 横屏<br><br>电脑版是 C++ 单文件（GitHub: whale-os）</div>'}},
-  settings:{t:'设置',ic:'⚙️',w:330,h:360,body:function(){
-    return '<div><b>外观</b></div>'+
-      '<div class="btnrow"><button onclick="setWall()">换壁纸</button>'+
-      '<button onclick="toggleIsland()">灵动岛：'+(S.island?'开':'关')+'</button></div>'+
-      '<div style="margin-top:12px"><b>系统</b></div>'+
-      '<div class="btnrow"><button onclick="appSync()">同步电脑桌面</button><button onclick="phoneDesk()">同步手机桌面</button>'+
-      '<button onclick="rotateTest()">横屏测试</button>'+
-      '<button onclick="openApp(\'taskview\')">多任务</button></div>'+
-      '<div style="margin-top:12px"><b>存储</b></div>'+
-      '<div class="btnrow"><button onclick="resetAll()">清空本机数据</button></div>'+
-      '<div style="margin-top:14px;opacity:.6;font-size:12px">鲸鱼OS 2.0 · 网页内核</div>';
+  note:{t:'记事本',ic:'📝',w:330,h:320,body:function(){
+    var v='';try{v=localStorage.getItem('whale_note')||''}catch(e){}
+    return '<textarea id="noteta" placeholder="随便打点字…（会自动保存）" oninput="saveNote(this.value)">'+v.replace(/</g,'&lt;')+'</textarea>';
   }},
-  apps:{t:'应用（同步）',ic:'🗂️',w:320,h:330,body:function(){
-    var list=[['📝','记事本','note'],['🗑️','回收站','trash'],['⚙️','设置','settings'],['ℹ️','关于','about'],
-              ['🧮','计算器','calc'],['🖼️','壁纸','wall'],['🪟','多任务','taskview'],['📱','横屏','rotate'],['📲','手机桌面','phone']];
-    var h='<div style="font-size:12px;opacity:.65;margin-bottom:10px">点「同步应用」可以和电脑版保持一致</div><div class="btnrow">';
-    for(var i=0;i<list.length;i++){
-      h+='<button onclick="launch(\''+list[i][2]+'\')">'+list[i][0]+' '+list[i][1]+'</button>';
-    }
+  paint:{t:'画图',ic:'🎨',w:330,h:360,body:function(){
+    return '<canvas id="cv" width="290" height="240" style="background:#ffffff12;border-radius:10px;touch-action:none"></canvas>'+
+      '<div class="btnrow"><button onclick="paintClear()">清空</button><button onclick="paintSave()">保存到相册</button></div>';
+  }},
+  trash:{t:'回收站',ic:'🗑️',w:310,h:200,body:function(){
+    return '<div>🗑️ 这里空空如也<br><br><small style="opacity:.6">（演示用，不真的删除文件）</small></div>';
+  }},
+  about:{t:'关于鲸鱼OS',ic:'ℹ️',w:320,h:260,body:function(){
+    return '<div><b>鲸鱼OS 2.0</b><br><br>灵动岛（点它开开始菜单）· 分页桌面 · 多任务 · 窗口最小化/最大化 · 设置 · 同步电脑桌面 · 同步手机桌面 · 记事本自动保存 · 画图<br><br>电脑版是 C++ 单文件，网页版一套代码两端复用。</div>';
+  }},
+  settings:{t:'设置',ic:'⚙️',w:340,h:420,body:function(){
+    var ws='';
+    for(var i=0;i<6;i++) ws+='<div class="wallsw'+(S.wall===i?' on':'')+'" onclick="setWall('+i+')" style="'+wallBg(i)+'"></div>';
+    return '<div class="row"><span class="k">桌面大时钟</span>'+
+        '<div class="sw'+(S.clock?' on':'')+'" onclick="tg(\'clock\')"><i></i></div></div>'+
+      '<div class="row"><span class="k">灵动岛</span>'+
+        '<div class="sw'+(S.island?' on':'')+'" onclick="tg(\'island\')"><i></i></div></div>'+
+      '<div class="row"><span class="k">24 小时制</span>'+
+        '<div class="sw'+(S.h24?' on':'')+'" onclick="tg(\'h24\')"><i></i></div></div>'+
+      '<div style="margin-top:12px"><b>壁纸</b></div><div class="wallgrid">'+ws+'</div>'+
+      '<div style="margin-top:6px"><b>同步</b></div>'+
+      '<div class="btnrow"><button onclick="appSync()">同步电脑桌面</button><button onclick="phoneDesk()">同步手机桌面</button></div>'+
+      '<div style="margin-top:10px"><b>存储</b></div>'+
+      '<div class="btnrow"><button onclick="resetAll()">清空本机数据</button><button onclick="openApp(\'taskview\')">多任务</button></div>'+
+      '<div style="margin-top:12px;opacity:.55;font-size:11.5px">鲸鱼OS 2.0 · 网页内核 · 设置会自动保存</div>';
+  }},
+  apps:{t:'所有应用',ic:'🗂️',w:330,h:380,body:function(){
+    var l=[['📝','记事本','note'],['🎨','画图','paint'],['🗑️','回收站','trash'],['⚙️','设置','settings'],
+           ['ℹ️','关于','about'],['🧮','计算器','calc'],['🪟','多任务','taskview'],['📲','手机桌面','phone'],['🔄','电脑桌面','sync']];
+    var h='<div class="btnrow">';
+    for(var i=0;i<l.length;i++) h+='<button onclick="openApp(\''+l[i][2]+'\')">'+l[i][0]+' '+l[i][1]+'</button>';
     return h+'</div>';
   }},
-  sync:{t:'同步应用',ic:'🔄',w:330,h:330,body:function(){
-    return '<div style="font-size:12.5px;line-height:1.6;opacity:.85">把电脑版桌面上的图标搬到这里：</div>'+
-      '<div style="margin-top:10px;font-size:12px;opacity:.7">① 电脑版打开「同步应用」→ 复制同步码</div>'+
-      '<div style="margin-top:4px;font-size:12px;opacity:.7">② 手机版粘贴到这里 → 点导入</div>'+
-      '<textarea id="synccode" placeholder="JLW1-..." style="margin-top:8px;height:88px;border:1px solid #ffffff2e;border-radius:10px;padding:8px;background:#00000033"></textarea>'+
-      '<div class="btnrow"><button onclick="applySyncCode(document.getElementById(\'synccode\').value)">导入到桌面</button>'+
-      '<button onclick="var t=document.getElementById(\'synccode\');t.value=syncCode();toast(\'同步码已生成\')">生成我的同步码</button></div>';
+  calc:{t:'计算器',ic:'🧮',w:310,h:360,body:function(){
+    var ks=['7','8','9','÷','4','5','6','×','1','2','3','−','0','.','=','+','C','←'];
+    var h='<div id="cd2" style="font-size:26px;text-align:right;padding:6px;border-bottom:1px solid #ffffff22;margin-bottom:8px">0</div><div class="btnrow">';
+    for(var i=0;i<ks.length;i++) h+='<button style="width:58px" onclick="calcKey(\''+ks[i]+'\')">'+ks[i]+'</button>';
+    return h+'</div>';
   }},
-  calc:{t:'计算器',ic:'🧮',w:300,h:330,body:function(){
-    return '<div id="calcDisp" style="font-size:26px;text-align:right;padding:8px 6px;border-bottom:1px solid #ffffff22;margin-bottom:8px">0</div>'+
-      '<div class="btnrow">'+
-      ['7','8','9','÷','4','5','6','×','1','2','3','−','0','.','=','+','C','←'].map(function(k){
-        return '<button style="width:60px" onclick="calcKey(\''+k+'\')">'+k+'</button>'}).join('')+
-      '</div>';
+  sync:{t:'同步电脑桌面',ic:'🔄',w:330,h:340,body:function(){
+    return '<div style="font-size:12.5px;line-height:1.6;opacity:.85">把电脑版桌面上的图标搬到这里：</div>'+
+      '<div style="margin-top:8px;font-size:12px;opacity:.7">① 电脑版点「生成我的同步码」</div>'+
+      '<div style="font-size:12px;opacity:.7">② 手机粘贴 → 点导入</div>'+
+      '<textarea id="synccode" placeholder="JLW1-..." style="margin-top:8px;height:86px;border:1px solid #ffffff2e;border-radius:10px;padding:8px;background:#00000033"></textarea>'+
+      '<div class="btnrow"><button onclick="applySyncCode(document.getElementById(\'synccode\').value)">导入到桌面</button>'+
+      '<button onclick="document.getElementById(\'synccode\').value=syncCode();toast(\'同步码已生成\')">生成我的同步码</button></div>';
   }}
 };
+function wallBg(i){
+  var b=['linear-gradient(180deg,#0b142c,#123152)','linear-gradient(180deg,#141026,#2b1b4d)',
+         'linear-gradient(160deg,#07211f,#0b3b36)','linear-gradient(180deg,#2a1030,#4a1a3d)',
+         'linear-gradient(160deg,#1b1206,#4a2a0a)','linear-gradient(180deg,#101418,#1c2430)'];
+  return 'background:'+b[i];
+}
 
-/* 窗口管理 */
-var wins={}, zTop=10, seq=0;
+/* ── 设置动作 ── */
+function applyS(){
+  $('#desk').className=S.wall?'w'+S.wall:'';
+  $('#clock').className=S.clock?'':'off';
+  $('#island').style.display=S.island?'flex':'none';
+  tick();
+}
+function setWall(i){S.wall=i;saveS();applyS();refreshSettings();toast('壁纸已更换');}
+function tg(k){S[k]=!S[k];saveS();applyS();refreshSettings();
+  toast({clock:'大时钟：',island:''}[k]||'');}
+function refreshSettings(){
+  var el=$('#win_settings'); if(!el)return;
+  var bd=el.querySelector('.bd'); if(bd)bd.innerHTML=APPS.settings.body();
+}
+function resetAll(){try{localStorage.removeItem('whaleos2');localStorage.removeItem('whale_note');}catch(e){}
+  S={wall:0,clock:true,island:true,h24:true,accent:'#3b82f6'};applyS();refreshSettings();toast('已清空');}
+
+/* ── 窗口 ── */
+var wins={},zTop=10;
 function openApp(k){
-  closeMenu();
-  if(k==='taskview'){taskview();return}
-  if(k==='rotate'){rotateTest();return}
-  if(k==='wall'){setWall();return}
+  closeMenu();hideCtx();
+  if(k==='taskview')return taskview();
+  if(k==='phone')return phoneDesk();
+  if(k==='sync')return appSync();
   var a=APPS[k]; if(!a)return;
-  if(wins[k]){focusWin(k);return}
-  var W=innerW(),H=innerH();
-  var w=Math.min(a.w,W-24), h=Math.min(a.h,H-140);
+  if(wins[k]){focusWin(k);return;}
+  var W=innerW(),H=innerH(),w=Math.min(a.w,W-24),h=Math.min(a.h,H-150);
   var el=document.createElement('div');
-  el.className='win'; el.id='win_'+k;
-  el.style.width=w+'px'; el.style.height=h+'px';
-  el.style.left=Math.max(10,(W-w)/2)+'px';
-  el.style.top=Math.max(64,(H-h)/2-20)+'px';
+  el.className='win';el.id='win_'+k;
+  el.style.width=w+'px';el.style.height=h+'px';
+  el.style.left=Math.max(10,(W-w)/2)+'px';el.style.top=Math.max(60,(H-h)/2-30)+'px';
   el.style.zIndex=++zTop;
-  el.innerHTML='<div class="tb"><b>'+a.ic+' '+a.t+'</b>'+
-    '<div class="btn mn">–</div><div class="btn mx">□</div><div class="btn x">✕</div></div>'+
-    '<div class="bd">'+a.body()+'</div>';
-  document.getElementById('wins').appendChild(el);
-  wins[k]={el:el,min:false,max:false,ox:0,oy:0};
-  el.querySelector('.x').onclick=function(e){e.stopPropagation();closeWin(k)};
-  el.querySelector('.mn').onclick=function(e){e.stopPropagation();minWin(k)};
-  el.querySelector('.mx').onclick=function(e){e.stopPropagation();maxWin(k)};
-  dragWin(k, el.querySelector('.tb'));
-  el.addEventListener('mousedown',function(){focusWin(k)});
-  el.addEventListener('touchstart',function(){focusWin(k)},{passive:true});
+  el.innerHTML='<div class="tb"><b>'+a.ic+' '+a.t+'</b><div class="btn mn">–</div><div class="btn mx">□</div><div class="btn x">✕</div></div><div class="bd">'+a.body()+'</div>';
+  $('#wins').appendChild(el);
+  wins[k]={el:el,min:false,max:false};
+  el.querySelector('.x').onclick=function(e){e.stopPropagation();closeWin(k);};
+  el.querySelector('.mn').onclick=function(e){e.stopPropagation();minWin(k);};
+  el.querySelector('.mx').onclick=function(e){e.stopPropagation();maxWin(k);};
+  dragWin(k,el.querySelector('.tb'));
+  el.addEventListener('mousedown',function(){focusWin(k);});
+  el.addEventListener('touchstart',function(){focusWin(k);},{passive:true});
+  if(k==='paint')setTimeout(initPaint,60);
   return el;
 }
-function focusWin(k){
-  var w=wins[k]; if(!w)return;
-  if(w.min){w.min=false;w.el.style.display='flex'}
-  w.el.style.zIndex=++zTop;
-}
-function closeWin(k){
-  var w=wins[k]; if(!w)return;
-  w.el.parentNode.removeChild(w.el); delete wins[k];
-  toast('已关闭');
-}
-function minWin(k){
-  var w=wins[k]; if(!w)return;
-  w.min=true; w.el.style.display='none';
-  toast('已最小化 · 点灵动岛→多任务可恢复');
-}
+function focusWin(k){var w=wins[k];if(!w)return;if(w.min){w.min=false;w.el.style.display='flex';}w.el.style.zIndex=++zTop;}
+function closeWin(k){var w=wins[k];if(!w)return;w.el.parentNode.removeChild(w.el);delete wins[k];}
+function minWin(k){var w=wins[k];if(!w)return;w.min=true;w.el.style.display='none';toast('已最小化 · 灵动岛→多任务可恢复');}
 function maxWin(k){
-  var w=wins[k]; if(!w)return;
-  var W=innerW(),H=innerH();
-  if(!w.max){
-    w.prev={l:w.el.style.left,t:w.el.style.top,w:w.el.style.width,h:w.el.style.height};
-    w.el.style.left='0px'; w.el.style.top='44px';
-    w.el.style.width=W+'px'; w.el.style.height=(H-44)+'px';
-    w.el.classList.add('max'); w.max=true;
-  } else {
-    w.el.style.left=w.prev.l; w.el.style.top=w.prev.t;
-    w.el.style.width=w.prev.w; w.el.style.height=w.prev.h;
-    w.el.classList.remove('max'); w.max=false;
-  }
+  var w=wins[k];if(!w)return;var W=innerW(),H=innerH();
+  if(!w.max){w.prev={l:w.el.style.left,t:w.el.style.top,w:w.el.style.width,h:w.el.style.height};
+    w.el.style.left='0px';w.el.style.top='44px';w.el.style.width=W+'px';w.el.style.height=(H-44)+'px';
+    w.el.classList.add('max');w.max=true;}
+  else{w.el.style.left=w.prev.l;w.el.style.top=w.prev.t;w.el.style.width=w.prev.w;w.el.style.height=w.prev.h;
+    w.el.classList.remove('max');w.max=false;}
   fit();
 }
 function dragWin(k,tb){
-  var w=wins[k];
-  var sx=0,sy=0,ol=0,ot=0,dragging=false;
-  function down(e){
-    if(w.max)return;
-    dragging=true;
-    var p=e.touches?e.touches[0]:e;
-    sx=p.clientX; sy=p.clientY;
-    ol=parseInt(w.el.style.left)||0; ot=parseInt(w.el.style.top)||0;
-    document.addEventListener('mousemove',move); document.addEventListener('mouseup',up);
-    document.addEventListener('touchmove',move,{passive:false}); document.addEventListener('touchend',up);
-  }
-  function move(e){
-    if(!dragging)return;
-    var p=e.touches?e.touches[0]:e; if(!p)return;
-    var nx=Math.max(-40,Math.min(innerW()-60,ol+(p.clientX-sx)));
+  var w=wins[k],sx=0,sy=0,ol=0,ot=0,on=false;
+  function down(e){if(w.max)return;on=true;var p=e.touches?e.touches[0]:e;
+    sx=p.clientX;sy=p.clientY;ol=parseInt(w.el.style.left)||0;ot=parseInt(w.el.style.top)||0;
+    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+    document.addEventListener('touchmove',mv,{passive:false});document.addEventListener('touchend',up);}
+  function mv(e){if(!on)return;var p=e.touches?e.touches[0]:e;if(!p)return;
+    var nx=Math.max(-40,Math.min(innerW()-70,ol+(p.clientX-sx)));
     var ny=Math.max(46,Math.min(innerH()-60,ot+(p.clientY-sy)));
-    w.el.style.left=nx+'px'; w.el.style.top=ny+'px';
-    if(e.cancelable&&e.touches)e.preventDefault();
-  }
-  function up(){
-    dragging=false;
-    document.removeEventListener('mousemove',move); document.removeEventListener('mouseup',up);
-    document.removeEventListener('touchmove',move); document.removeEventListener('touchend',up);
-  }
-  tb.addEventListener('mousedown',down);
-  tb.addEventListener('touchstart',down,{passive:false});
+    w.el.style.left=nx+'px';w.el.style.top=ny+'px';
+    if(e.cancelable&&e.touches)e.preventDefault();}
+  function up(){on=false;document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+    document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up);}
+  tb.addEventListener('mousedown',down);tb.addEventListener('touchstart',down,{passive:false});
 }
 
-/* 多任务 */
+/* ── 多任务 ── */
 function taskview(){
-  closeMenu();
-  var tv=document.getElementById('taskview'), list=document.getElementById('tvlist');
-  var keys=Object.keys(wins);
-  var h='';
-  if(!keys.length){
-    h='<div class="empty">没有运行中的应用<br><br>点灵动岛 → 开始，打开一个</div>';
-  } else {
-    for(var i=0;i<keys.length;i++){
-      var k=keys[i], a=APPS[k]||{ic:'🪟',t:k};
-      h+='<div class="card"><div class="ic">'+a.ic+'</div><div class="nm">'+a.t+(wins[k].min?' <span style="opacity:.5">（最小化）</span>':'')+'</div>'+
-         '<div class="op" onclick="tvOpen(\''+k+'\')">打开</div>'+
-         '<div class="op" onclick="tvClose(\''+k+'\')">关闭</div></div>';
-    }
-  }
-  h+='<div style="text-align:center;margin-top:18px"><button onclick="tvHide()" style="padding:10px 22px;border-radius:12px;border:1px solid #ffffff2e;background:#ffffff14;color:#e8f1ff">返回桌面</button></div>';
-  list.innerHTML=h;
-  tv.classList.add('show');
+  closeMenu();var list=$('#tvlist'),ks=Object.keys(wins),h='';
+  if(!ks.length){h='<div class="empty">没有运行中的应用<br><br>点灵动岛 → 开始，打开一个</div>';}
+  else{for(var i=0;i<ks.length;i++){var k=ks[i],a=APPS[k]||{ic:'🪟',t:k};
+    h+='<div class="card"><div class="ic">'+a.ic+'</div><div class="nm">'+a.t+(wins[k].min?' <span style="opacity:.5">（最小化）</span>':'')+'</div>'+
+       '<div class="op" onclick="tvOpen(\''+k+'\')">打开</div><div class="op" onclick="tvClose(\''+k+'\')">关闭</div></div>';}}
+  h+='<div style="text-align:center;margin-top:16px"><button onclick="tvHide()" style="padding:10px 22px;border-radius:12px;border:1px solid #ffffff2e;background:#ffffff14;color:#e8f1ff">返回桌面</button></div>';
+  list.innerHTML=h;$('#tv').classList.add('show');
 }
-function tvHide(){document.getElementById('taskview').classList.remove('show')}
-function tvOpen(k){tvHide();focusWin(k)}
-function tvClose(k){closeWin(k);taskview()}
+function tvHide(){$('#tv').classList.remove('show');}
+function tvOpen(k){tvHide();focusWin(k);}
+function tvClose(k){closeWin(k);taskview();}
 
-/* 设置动作 */
-function setWall(){
-  S.wall=(S.wall+1)%4; saveS(); applyS(); toast('壁纸已更换');
-  var el=document.getElementById('win_settings');
-  if(el){var b=el.querySelector('.bd'); if(b)b.innerHTML=APPS.settings.body()}
+/* ── 记事本 / 画图 ── */
+function saveNote(v){try{localStorage.setItem('whale_note',v);}catch(e){}}
+var cvCtx=null,drawing=false;
+function initPaint(){
+  var cv=$('#cv');if(!cv)return;cvCtx=cv.getContext('2d');
+  cvCtx.strokeStyle='#7cc4ff';cvCtx.lineWidth=4;cvCtx.lineCap='round';
+  function pos(e){var r=cv.getBoundingClientRect(),p=e.touches?e.touches[0]:e;
+    return {x:p.clientX-r.left,y:p.clientY-r.top};}
+  cv.onmousedown=function(e){drawing=true;var p=pos(e);cvCtx.beginPath();cvCtx.moveTo(p.x,p.y);};
+  cv.onmousemove=function(e){if(!drawing)return;var p=pos(e);cvCtx.lineTo(p.x,p.y);cvCtx.stroke();};
+  cv.onmouseup=function(){drawing=false;};
+  cv.ontouchstart=function(e){drawing=true;var p=pos(e);cvCtx.beginPath();cvCtx.moveTo(p.x,p.y);e.preventDefault();};
+  cv.ontouchmove=function(e){if(!drawing)return;var p=pos(e);cvCtx.lineTo(p.x,p.y);cvCtx.stroke();e.preventDefault();};
+  cv.ontouchend=function(){drawing=false;};
 }
-function toggleIsland(){
-  S.island=!S.island; saveS(); applyS(); toast('灵动岛：'+(S.island?'开':'关'));
-  var el=document.getElementById('win_settings');
-  if(el){var b=el.querySelector('.bd'); if(b)b.innerHTML=APPS.settings.body()}
+function paintClear(){var cv=$('#cv');if(cv&&cvCtx)cvCtx.clearRect(0,0,cv.width,cv.height);}
+function paintSave(){
+  var cv=$('#cv');if(!cv)return;
+  try{
+    if(window.AndroidOS&&AndroidOS.saveImage){AndroidOS.saveImage(cv.toDataURL('image/png'));toast('已保存到相册');}
+    else{var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='whaleos-paint.png';a.click();toast('已下载图片');}
+  }catch(e){toast('保存失败');}
 }
-function resetAll(){
-  try{localStorage.removeItem('whaleos2')}catch(e){}
-  S={wall:0,island:true,dark:true}; applyS(); toast('已清空');
+
+/* ── 计算器 ── */
+var cb='0';
+function calcKey(k){
+  var d=$('#cd2');if(!d)return;
+  if(k==='C')cb='0';
+  else if(k==='←')cb=cb.length>1?cb.slice(0,-1):'0';
+  else if(k==='='){
+    try{var ex=cb.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+      if(!/^[0-9+\-*/.() ]+$/.test(ex))throw 0;
+      cb=String(Math.round(Function('return ('+ex+')')()*1e10)/1e10);}
+    catch(e){cb='错误';}
+  } else cb=(cb==='0'||cb==='错误')?k:cb+k;
+  d.textContent=cb;
 }
+
+/* ── 同步：电脑桌面 / 手机桌面 ── */
 function deskIcons(){
   var arr=[];
-  var els=document.querySelectorAll('#desk .icon');
-  for(var i=0;i<els.length;i++){
-    arr.push({n:els[i].textContent.trim(), ic:(els[i].querySelector('.g')||{}).textContent||'📦',
-              x:parseInt(els[i].style.left)||14, y:parseInt(els[i].style.top)||70,
-              app:(els[i].getAttribute('onclick')||'').match(/'([^']+)'/)});
-  }
+  for(var i=0;i<ICONS.length;i++) arr.push({n:ICONS[i].name, a:ICONS[i].app});
   return arr;
 }
 function syncCode(){
-  try{
-    return 'JLW1-' + btoa(unescape(encodeURIComponent(JSON.stringify(deskIcons())))).slice(0,180);
-  }catch(e){ return 'JLW1-ERR'; }
+  try{return 'JLW1-'+btoa(unescape(encodeURIComponent(JSON.stringify(deskIcons())))).slice(0,200);}
+  catch(e){return 'JLW1-ERR';}
 }
 function applySyncCode(code){
   code=(code||'').trim().replace(/^JLW1-/,'');
-  if(!code){ toast('同步码是空的'); return; }
+  if(!code){toast('同步码是空的');return;}
   try{
     var arr=JSON.parse(decodeURIComponent(escape(atob(code))));
-    if(!arr || !arr.length) throw 0;
-    var desk=document.getElementById('desk');
-    var old=desk.querySelectorAll('.icon');
-    for(var i=0;i<old.length;i++) old[i].parentNode.removeChild(old[i]);
-    for(var j=0;j<arr.length;j++){
-      var a=arr[j];
+    if(!arr||!arr.length)throw 0;
+    for(var i=0;i<arr.length;i++){
       var d=document.createElement('div');
       d.className='icon';
-      d.style.left=(a.x||14)+'px'; d.style.top=(a.y||(70+j*80))+'px';
-      var k=(a.app&&a.app[1])||'note';
-      d.setAttribute('onclick',"openApp('"+k+"')");
-      d.innerHTML='<div class="g">'+a.ic+'</div>'+a.n;
-      desk.appendChild(d);
+      d.setAttribute('onclick',"openApp('"+(arr[i].a||'note')+"')");
+      d.innerHTML='<div class="g">📦</div>'+arr[i].n;
+      $('#desk').appendChild(d);
+      ICONS.push({el:d,app:arr[i].a||'note',name:arr[i].n});
     }
-    toast('同步完成：桌面已导入 '+arr.length+' 个图标');
-  }catch(e){ toast('同步码无效，检查是否复制完整'); }
+    layoutIcons();toast('同步完成：'+arr.length+' 个图标');
+  }catch(e){toast('同步码无效');}
 }
+function appSync(){openApp('sync');}
 function phoneDesk(){
-  if(!window.AndroidOS || !window.AndroidOS.listApps){
-    notify('同步手机桌面','网页版读不到手机应用，装 APK 才有这个功能',3200); return;
-  }
+  if(!window.AndroidOS||!window.AndroidOS.listApps){
+    notify('同步手机桌面','网页版读不到手机应用，装 APK 才有',3200);return;}
   notify('同步手机桌面','正在读取已安装的应用…',1500);
   setTimeout(function(){
-    var arr=[];
-    try{ arr=JSON.parse(AndroidOS.listApps()); }catch(e){ notify('同步失败','读不到应用列表',2600); return; }
-    var desk=document.getElementById('desk');
-    var old=desk.querySelectorAll('.icon.phoneicon');
-    for(var i=0;i<old.length;i++) old[i].parentNode.removeChild(old[i]);
-    collectIcons();                     // 先收走系统图标
+    var arr=[];try{arr=JSON.parse(AndroidOS.listApps());}catch(e){notify('同步失败','读不到应用列表',2600);return;}
+    var old=document.querySelectorAll('.icon.phoneicon');
+    for(var i=0;i<old.length;i++){old[i].parentNode.removeChild(old[i]);}
+    collectIcons();
     for(var j=0;j<arr.length;j++){
-      var a=arr[j];
-      var d=document.createElement('div');
+      var a=arr[j],d=document.createElement('div');
       d.className='icon phoneicon';
-      d.innerHTML='<div class="g" style="background:#ffffff22;overflow:hidden">'+
-        (a.i?'<img src="'+a.i+'" style="width:34px;height:34px">':'📦')+'</div>'+a.n;
-      (function(pkg){ d.onclick=function(){ try{AndroidOS.launch(pkg)}catch(e){} } })(a.p);
-      desk.appendChild(d);
-      ICONS.push({el:d, app:'android', name:String(a.n), ic:'📱'});
+      d.innerHTML='<div class="g" style="background:#ffffff22">'+(a.i?'<img src="'+a.i+'">':'📦')+'</div>'+a.n;
+      (function(pkg){d.onclick=function(){try{AndroidOS.launch(pkg);}catch(e){}};})(a.p);
+      $('#desk').appendChild(d);
+      ICONS.push({el:d,app:'android',name:String(a.n)});
     }
     layoutIcons();
-    goPage(Math.floor(5/gridSize().per));   // 跳到手机图标所在的那一页
-    notify('同步完成','手机上 '+arr.length+' 个应用已摆到桌面');
+    notify('同步完成','手机上 '+arr.length+' 个应用已摆到第 2 页',2600);
+    goPage(1);
   },260);
 }
-function appSync(){
-  var code=syncCode();
-  notify('同步应用','正在读取桌面上的应用…',1200);
-  setTimeout(function(){
-    var el=openApp('sync');
-    if(el){
-      var codeEl=el.querySelector('#synccode');
-      if(codeEl) codeEl.value=code;
-    }
-  },400);
-}
-function rotateTest(){
-  toast('把手机横过来试试 · 窗口会自动重排');
-  setTimeout(function(){reflow()},300);
-}
-function reflow(){
-  var W=innerW(),H=innerH();
-  if(ICONS.length) layoutIcons();
-  document.getElementById('island').style.top='8px';
-  for(var k in wins){
-    var w=wins[k];
-    if(w.max){w.el.style.width=W+'px';w.el.style.height=(H-44)+'px';w.el.style.top='44px';w.el.style.left='0px'}
-    else{
-      var l=parseInt(w.el.style.left)||0, t=parseInt(w.el.style.top)||0;
-      if(l>W-60)w.el.style.left=Math.max(8,W-120)+'px';
-      if(t>H-60)w.el.style.top=Math.max(46,H-140)+'px';
-    }
-  }
-}
 
-/* 计算器 */
-var calcBuf='0';
-function calcKey(k){
-  var d=document.getElementById('calcDisp'); if(!d)return;
-  if(k==='C'){calcBuf='0'}
-  else if(k==='←'){calcBuf=calcBuf.length>1?calcBuf.slice(0,-1):'0'}
-  else if(k==='='){
-    try{
-      var expr=calcBuf.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
-      if(!/^[0-9+\-*/.() ]+$/.test(expr))throw 0;
-      var r=Function('return ('+expr+')')();
-      calcBuf=String(Math.round(r*1e10)/1e10);
-    }catch(e){calcBuf='错误'}
-  }
-  else{calcBuf=(calcBuf==='0'||calcBuf==='错误')?k:calcBuf+k}
-  d.textContent=calcBuf;
-}
-function launch(k){
-  if(k==='phone')return phoneDesk();
-  if(k==='taskview')return taskview();
-  if(k==='rotate')return rotateTest();
-  if(k==='wall')return setWall();
-  openApp(k);
-}
-
-/* 硬件返回键：单次回退，连按两下回开始菜单 */
-var lastBack=0;
-window.onBackPressed=function(){
-  var now=Date.now();
-  var dbl=(now-lastBack)<700;
-  lastBack=now;
-
-  var tv=document.getElementById('taskview');
-  if(tv.classList.contains('show')){ tvHide(); return true; }
-  if(menuOpen){ closeMenu(); return true; }
-  if(islandBusy){ dismissIsland(); return true; }
-
-  if(dbl){                       // 连按两下 → 开始菜单
-    if(!menuOpen) islandTap();
-    toast('回到开始菜单');
-    return true;
-  }
-
-  // 单次：收起最上面的窗口（最小化）
-  var top=null,tz=-1;
-  for(var k in wins){
-    var w=wins[k];
-    if(w.min)continue;
-    var z=parseInt(w.el.style.zIndex)||0;
-    if(z>tz){tz=z;top=k}
-  }
-  if(top){ minWin(top); return true; }
-  toast('已经在桌面 · 再快速按一下回开始菜单');
-  return true;   // 始终拦下，不退出 App
-};
-window.onKey=(function(prev){
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'||e.keyCode===27){ window.onBackPressed(); }
-  });
-})();
-
-/* 手势：从左边缘往右滑 = 返回上一级；长按灵动岛 = 多任务 */
-(function(){
-  var sx=0,sy=0,t0=0,armed=false;
+/* ── 手势 ── */
+function gestures(){
+  var sx=0,sy=0,t0=0,edge=false;
   document.addEventListener('touchstart',function(e){
-    var p=e.touches[0]; if(!p)return;
-    sx=p.clientX; sy=p.clientY; t0=Date.now();
-    armed=(sx<28);   // 左边缘 28px 内起手
+    var p=e.touches[0];if(!p)return;
+    sx=p.clientX;sy=p.clientY;t0=Date.now();edge=(sx<26);
   },{passive:true});
   document.addEventListener('touchend',function(e){
-    if(!armed)return;
-    var p=(e.changedTouches&&e.changedTouches[0]); if(!p)return;
-    var dx=p.clientX-sx, dy=Math.abs(p.clientY-sy);
-    if(dx>70 && dy<60){ window.onBackPressed(); }
-    armed=false;
+    var p=(e.changedTouches&&e.changedTouches[0]);if(!p)return;
+    var dx=p.clientX-sx,dy=p.clientY-sy;
+    if(edge&&dx>70&&Math.abs(dy)<70){window.onBackPressed();return;}
+    if(!e.target.closest('.win')&&!e.target.closest('#island')&&!e.target.closest('#menu')
+       &&Math.abs(dx)>55&&Math.abs(dy)<70&&Date.now()-t0<900){
+      goPage(PAGE+(dx<0?1:-1));
+    }
   },{passive:true});
-  var lt=null;
-  var isl=document.getElementById('island');
-  if(isl){
-    isl.addEventListener('touchstart',function(){ lt=setTimeout(function(){ taskview(); lt=null; },650) },{passive:true});
-    isl.addEventListener('touchend',function(){ if(lt){clearTimeout(lt);lt=null;} },{passive:true});
-    isl.addEventListener('touchmove',function(){ if(lt){clearTimeout(lt);lt=null;} },{passive:true});
-  }
-})();
+  var lt=null,isl=$('#island');
+  isl.addEventListener('touchstart',function(){lt=setTimeout(function(){taskview();lt=null;},650);},{passive:true});
+  isl.addEventListener('touchend',function(){if(lt){clearTimeout(lt);lt=null;}},{passive:true});
+  isl.addEventListener('touchmove',function(){if(lt){clearTimeout(lt);lt=null;}},{passive:true});
+}
 
-/* 点空白关菜单 */
+/* ── 桌面长按 / 右键菜单 ── */
+var ctxT=null;
+function showCtx(x,y){var c=$('#ctx');c.classList.add('show');
+  c.style.left=Math.min(x,innerW()-180)+'px';c.style.top=Math.min(y,innerH()-160)+'px';}
+function hideCtx(){$('#ctx').classList.remove('show');}
+function ctxNew(){
+  hideCtx();
+  var d=document.createElement('div');d.className='icon';
+  d.setAttribute('onclick',"openApp('note')");
+  d.innerHTML='<div class="g">📄</div>新建文档';
+  $('#desk').appendChild(d);ICONS.push({el:d,app:'note',name:'新建文档'});
+  layoutIcons();toast('已新建文本文档');
+}
+function ctxWall(){hideCtx();setWall((S.wall+1)%6);}
+function ctxClean(){hideCtx();goPage(0);toast('桌面已整理');}
+
+/* ── 返回键 ── */
+var lastBack=0;
+window.onBackPressed=function(){
+  var now=Date.now(),dbl=(now-lastBack)<700;lastBack=now;
+  if($('#tv').classList.contains('show')){tvHide();return true;}
+  if(menuOpen){closeMenu();return true;}
+  if(islandBusy){dismissIsland();return true;}
+  if($('#ctx').classList.contains('show')){hideCtx();return true;}
+  if(dbl){if(!menuOpen){menuOpen=true;$('#menu').classList.add('open');}return true;}
+  var top=null,tz=-1;
+  for(var k in wins){var w=wins[k];if(w.min)continue;var z=parseInt(w.el.style.zIndex)||0;if(z>tz){tz=z;top=k;}}
+  if(top){minWin(top);return true;}
+  toast('已在桌面 · 连按两下回开始菜单');
+  return true;
+};
+
+/* ── 事件绑定 ── */
 document.addEventListener('click',function(e){
   if(!e.target.closest('#menu')&&!e.target.closest('#island'))closeMenu();
+  if(!e.target.closest('#ctx'))hideCtx();
 });
+document.addEventListener('contextmenu',function(e){
+  if(e.target.closest('#desk')&&!e.target.closest('.icon')&&!e.target.closest('.win')){
+    e.preventDefault();showCtx(e.clientX,e.clientY);
+  }
+});
+document.addEventListener('touchstart',function(e){
+  if(e.target.closest('.icon')||e.target.closest('.win')||e.target.closest('#island'))return;
+  var p=e.touches[0];if(!p)return;
+  var x=p.clientX,y=p.clientY;
+  ctxT=setTimeout(function(){
+    var el=document.elementFromPoint(x,y);
+    if(el&&!el.closest('.icon')&&!el.closest('.win'))showCtx(x,y);
+  },600);
+},{passive:true});
+document.addEventListener('touchend',function(){if(ctxT){clearTimeout(ctxT);ctxT=null;}},{passive:true});
+document.addEventListener('touchmove',function(){if(ctxT){clearTimeout(ctxT);ctxT=null;}},{passive:true});
 
-applyS();
-setTimeout(function(){toast('鲸鱼OS 2.0 已启动 · 点灵动岛打开开始菜单')},700);
+/* ── 启动 ── */
+fit();collectIcons();layoutIcons();gestures();applyS();
+setInterval(tick,1000);tick();
+window.addEventListener('resize',function(){setTimeout(function(){fit();},120);});
+window.addEventListener('orientationchange',function(){setTimeout(function(){fit();},300);});
+setTimeout(function(){toast('鲸鱼OS 2.0 · 点灵动岛开始');},700);
 </script>
 </body>
 </html>
