@@ -25,9 +25,17 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
 /* ── 灵动岛 ── */
 #island{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:900;
   background:#070a12f2;border:1px solid #ffffff26;border-radius:22px;
-  height:38px;min-width:132px;display:flex;align-items:center;justify-content:center;
-  padding:0 14px;font-size:13px;color:#dfe9f7;box-shadow:0 8px 26px #000a;
-  transition:width .22s ease,height .22s ease,border-radius .22s ease}
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  padding:0 15px;font-size:13px;color:#dfe9f7;box-shadow:0 8px 26px #000a;
+  transition:all .3s cubic-bezier(.25,.9,.3,1);max-width:88%}
+#island .pill{display:flex;align-items:center;height:38px;white-space:nowrap}
+#icard{display:none;width:100%;padding:10px 2px}
+#island.big{width:88%;max-width:350px;border-radius:20px;background:#0d1a2bf7;padding:10px 14px}
+#island.big .pill{display:none}
+#island.big #icard{display:block}
+#icard .ih{display:flex;align-items:center;font-size:11.5px;color:#87abcd;margin-bottom:3px}
+#icard .ih b{color:#e3edf8;font-size:12px;margin-left:6px;font-weight:600}
+#icard .ib{font-size:13px;line-height:1.5;color:#e8f0fa;word-break:break-word}
 #island .t{font-weight:600;letter-spacing:.5px}
 #island .dot{width:6px;height:6px;border-radius:50%;background:#4ade80;margin-left:8px}
 #island.live{background:#0d1a2b}
@@ -104,7 +112,8 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
 <div id="wins"></div>
 
 <div id="island" onclick="islandTap()">
-  <span class="t" id="itime">--:--</span><span class="dot" id="idot"></span>
+  <div class="pill"><span class="t" id="itime">--:--</span><span class="dot" id="idot"></span></div>
+  <div id="icard"><div class="ih">🐋 <b id="ititle">鲸鱼OS</b></div><div class="ib" id="ibody"></div></div>
 </div>
 
 <div id="menu">
@@ -163,26 +172,30 @@ function tick(){
 setInterval(tick,1000);tick();
 
 /* Toast */
-var msgT=null;
+var msgT=null, islandBusy=false;
 function toast(msg){ notify('鲸鱼OS', msg); }
-function notify(title, body, ms){
-  var el=document.getElementById('msg');
-  el.querySelector('.h b').textContent=title||'鲸鱼OS';
-  document.getElementById('msgb').textContent=body||'';
+function dismissIsland(){
   var isl=document.getElementById('island');
-  el.classList.add('show');
-  if(isl) isl.classList.add('live');
+  if(!isl)return;
+  isl.classList.remove('big');
+  islandBusy=false;
+  if(!menuOpen) isl.classList.remove('live');
+}
+function notify(title, body, ms){
+  var isl=document.getElementById('island');
+  if(!isl)return;
+  document.getElementById('ititle').textContent=title||'鲸鱼OS';
+  document.getElementById('ibody').textContent=body||'';
+  isl.classList.add('big','live');
+  islandBusy=true;
   clearTimeout(msgT);
-  msgT=setTimeout(function(){
-    el.classList.remove('show');
-    var isl2=document.getElementById('island');
-    if(isl2&&!menuOpen) isl2.classList.remove('live');
-  }, ms||2600);
+  msgT=setTimeout(function(){ if(islandBusy) dismissIsland(); }, ms||2800);
 }
 
 /* 开始菜单：挂在灵动岛下面 */
 var menuOpen=false;
 function islandTap(){
+  if(islandBusy){ dismissIsland(); return; }
   var m=document.getElementById('menu');
   menuOpen=!menuOpen;
   if(menuOpen){m.classList.add('open');document.getElementById('island').classList.add('live')}
@@ -219,6 +232,14 @@ var APPS={
       h+='<button onclick="launch(\''+list[i][2]+'\')">'+list[i][0]+' '+list[i][1]+'</button>';
     }
     return h+'</div>';
+  }},
+  sync:{t:'同步应用',ic:'🔄',w:330,h:330,body:function(){
+    return '<div style="font-size:12.5px;line-height:1.6;opacity:.85">把电脑版桌面上的图标搬到这里：</div>'+
+      '<div style="margin-top:10px;font-size:12px;opacity:.7">① 电脑版打开「同步应用」→ 复制同步码</div>'+
+      '<div style="margin-top:4px;font-size:12px;opacity:.7">② 手机版粘贴到这里 → 点导入</div>'+
+      '<textarea id="synccode" placeholder="JLW1-..." style="margin-top:8px;height:88px;border:1px solid #ffffff2e;border-radius:10px;padding:8px;background:#00000033"></textarea>'+
+      '<div class="btnrow"><button onclick="applySyncCode(document.getElementById(\'synccode\').value)">导入到桌面</button>'+
+      '<button onclick="var t=document.getElementById(\'synccode\');t.value=syncCode();toast(\'同步码已生成\')">生成我的同步码</button></div>';
   }},
   calc:{t:'计算器',ic:'🧮',w:300,h:330,body:function(){
     return '<div id="calcDisp" style="font-size:26px;text-align:right;padding:8px 6px;border-bottom:1px solid #ffffff22;margin-bottom:8px">0</div>'+
@@ -357,9 +378,53 @@ function resetAll(){
   try{localStorage.removeItem('whaleos2')}catch(e){}
   S={wall:0,island:true,dark:true}; applyS(); toast('已清空');
 }
+function deskIcons(){
+  var arr=[];
+  var els=document.querySelectorAll('#desk .icon');
+  for(var i=0;i<els.length;i++){
+    arr.push({n:els[i].textContent.trim(), ic:(els[i].querySelector('.g')||{}).textContent||'📦',
+              x:parseInt(els[i].style.left)||14, y:parseInt(els[i].style.top)||70,
+              app:(els[i].getAttribute('onclick')||'').match(/'([^']+)'/)});
+  }
+  return arr;
+}
+function syncCode(){
+  try{
+    return 'JLW1-' + btoa(unescape(encodeURIComponent(JSON.stringify(deskIcons())))).slice(0,180);
+  }catch(e){ return 'JLW1-ERR'; }
+}
+function applySyncCode(code){
+  code=(code||'').trim().replace(/^JLW1-/,'');
+  if(!code){ toast('同步码是空的'); return; }
+  try{
+    var arr=JSON.parse(decodeURIComponent(escape(atob(code))));
+    if(!arr || !arr.length) throw 0;
+    var desk=document.getElementById('desk');
+    var old=desk.querySelectorAll('.icon');
+    for(var i=0;i<old.length;i++) old[i].parentNode.removeChild(old[i]);
+    for(var j=0;j<arr.length;j++){
+      var a=arr[j];
+      var d=document.createElement('div');
+      d.className='icon';
+      d.style.left=(a.x||14)+'px'; d.style.top=(a.y||(70+j*80))+'px';
+      var k=(a.app&&a.app[1])||'note';
+      d.setAttribute('onclick',"openApp('"+k+"')");
+      d.innerHTML='<div class="g">'+a.ic+'</div>'+a.n;
+      desk.appendChild(d);
+    }
+    toast('同步完成：桌面已导入 '+arr.length+' 个图标');
+  }catch(e){ toast('同步码无效，检查是否复制完整'); }
+}
 function appSync(){
-  toast('正在同步应用列表…');
-  setTimeout(function(){toast('同步完成：8 个应用已对齐电脑版')},900);
+  var code=syncCode();
+  notify('同步应用','正在读取桌面上的应用…',1200);
+  setTimeout(function(){
+    var el=openApp('sync');
+    if(el){
+      var codeEl=el.querySelector('#synccode');
+      if(codeEl) codeEl.value=code;
+    }
+  },400);
 }
 function rotateTest(){
   toast('把手机横过来试试 · 窗口会自动重排');
@@ -413,8 +478,7 @@ window.onBackPressed=function(){
   var tv=document.getElementById('taskview');
   if(tv.classList.contains('show')){ tvHide(); return true; }
   if(menuOpen){ closeMenu(); return true; }
-  var mp=document.getElementById('msg');
-  if(mp.classList.contains('show')){ mp.classList.remove('show'); return true; }
+  if(islandBusy){ dismissIsland(); return true; }
 
   if(dbl){                       // 连按两下 → 开始菜单
     if(!menuOpen) islandTap();
