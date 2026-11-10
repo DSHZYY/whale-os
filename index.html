@@ -435,6 +435,30 @@ window.onKey=(function(prev){
   });
 })();
 
+/* 手势：从左边缘往右滑 = 返回上一级；长按灵动岛 = 多任务 */
+(function(){
+  var sx=0,sy=0,t0=0,armed=false;
+  document.addEventListener('touchstart',function(e){
+    var p=e.touches[0]; if(!p)return;
+    sx=p.clientX; sy=p.clientY; t0=Date.now();
+    armed=(sx<28);   // 左边缘 28px 内起手
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!armed)return;
+    var p=(e.changedTouches&&e.changedTouches[0]); if(!p)return;
+    var dx=p.clientX-sx, dy=Math.abs(p.clientY-sy);
+    if(dx>70 && dy<60){ window.onBackPressed(); }
+    armed=false;
+  },{passive:true});
+  var lt=null;
+  var isl=document.getElementById('island');
+  if(isl){
+    isl.addEventListener('touchstart',function(){ lt=setTimeout(function(){ taskview(); lt=null; },650) },{passive:true});
+    isl.addEventListener('touchend',function(){ if(lt){clearTimeout(lt);lt=null;} },{passive:true});
+    isl.addEventListener('touchmove',function(){ if(lt){clearTimeout(lt);lt=null;} },{passive:true});
+  }
+})();
+
 /* 点空白关菜单 */
 document.addEventListener('click',function(e){
   if(!e.target.closest('#menu')&&!e.target.closest('#island'))closeMenu();
