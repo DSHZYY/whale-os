@@ -124,7 +124,8 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
   <div class="mi" onclick="openApp('about')"><i>ℹ️</i>关于鲸鱼OS</div>
   <h4>系统</h4>
   <div class="mi" onclick="taskview()"><i>🪟</i>多任务</div>
-  <div class="mi" onclick="appSync()"><i>🔄</i>同步应用</div>
+  <div class="mi" onclick="appSync()"><i>🔄</i>同步电脑桌面</div>
+  <div class="mi" onclick="phoneDesk()"><i>📲</i>同步手机桌面</div>
   <div class="mi" onclick="rotateTest()"><i>📱</i>横屏 / 竖屏</div>
   <div class="mi" onclick="toast('这是 AI 做的假系统，不是真的 Windows')"><i>💬</i>试一下通知</div>
 </div>
@@ -217,7 +218,7 @@ var APPS={
       '<div class="btnrow"><button onclick="setWall()">换壁纸</button>'+
       '<button onclick="toggleIsland()">灵动岛：'+(S.island?'开':'关')+'</button></div>'+
       '<div style="margin-top:12px"><b>系统</b></div>'+
-      '<div class="btnrow"><button onclick="appSync()">同步应用</button>'+
+      '<div class="btnrow"><button onclick="appSync()">同步电脑桌面</button><button onclick="phoneDesk()">同步手机桌面</button>'+
       '<button onclick="rotateTest()">横屏测试</button>'+
       '<button onclick="openApp(\'taskview\')">多任务</button></div>'+
       '<div style="margin-top:12px"><b>存储</b></div>'+
@@ -226,7 +227,7 @@ var APPS={
   }},
   apps:{t:'应用（同步）',ic:'🗂️',w:320,h:330,body:function(){
     var list=[['📝','记事本','note'],['🗑️','回收站','trash'],['⚙️','设置','settings'],['ℹ️','关于','about'],
-              ['🧮','计算器','calc'],['🖼️','壁纸','wall'],['🪟','多任务','taskview'],['📱','横屏','rotate']];
+              ['🧮','计算器','calc'],['🖼️','壁纸','wall'],['🪟','多任务','taskview'],['📱','横屏','rotate'],['📲','手机桌面','phone']];
     var h='<div style="font-size:12px;opacity:.65;margin-bottom:10px">点「同步应用」可以和电脑版保持一致</div><div class="btnrow">';
     for(var i=0;i<list.length;i++){
       h+='<button onclick="launch(\''+list[i][2]+'\')">'+list[i][0]+' '+list[i][1]+'</button>';
@@ -415,6 +416,33 @@ function applySyncCode(code){
     toast('同步完成：桌面已导入 '+arr.length+' 个图标');
   }catch(e){ toast('同步码无效，检查是否复制完整'); }
 }
+function phoneDesk(){
+  if(!window.AndroidOS || !window.AndroidOS.listApps){
+    notify('同步手机桌面','网页版读不到手机应用，装 APK 才有这个功能',3200); return;
+  }
+  notify('同步手机桌面','正在读取已安装的应用…',1500);
+  setTimeout(function(){
+    var arr=[];
+    try{ arr=JSON.parse(AndroidOS.listApps()); }catch(e){ notify('同步失败','读不到应用列表',2600); return; }
+    var desk=document.getElementById('desk');
+    var old=desk.querySelectorAll('.icon.phoneicon');
+    for(var i=0;i<old.length;i++) old[i].parentNode.removeChild(old[i]);
+    var col=0,row=0,W=innerW();
+    for(var j=0;j<arr.length;j++){
+      var a=arr[j];
+      var d=document.createElement('div');
+      d.className='icon phoneicon';
+      d.style.left=(W-76-(col*76))+'px';
+      d.style.top=(70+row*82)+'px';
+      d.innerHTML='<div class="g" style="background:#ffffff22;overflow:hidden">'+
+        (a.i?'<img src="'+a.i+'" style="width:34px;height:34px">':'📦')+'</div>'+a.n;
+      (function(pkg){ d.onclick=function(){ try{AndroidOS.launch(pkg)}catch(e){} } })(a.p);
+      desk.appendChild(d);
+      row++; if(row>5){ row=0; col++; }
+    }
+    notify('同步完成','手机上 '+arr.length+' 个应用已摆到桌面');
+  },260);
+}
 function appSync(){
   var code=syncCode();
   notify('同步应用','正在读取桌面上的应用…',1200);
@@ -462,6 +490,7 @@ function calcKey(k){
   d.textContent=calcBuf;
 }
 function launch(k){
+  if(k==='phone')return phoneDesk();
   if(k==='taskview')return taskview();
   if(k==='rotate')return rotateTest();
   if(k==='wall')return setWall();
